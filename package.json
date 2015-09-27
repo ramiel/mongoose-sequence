@@ -1,0 +1,20 @@
+{
+  "name": "mongoose-autoincrement",
+  "version": "0.1.0",
+  "description": "Very generic autoincrement plugin for mongoose",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mongoose",
+    "autoincrement",
+    "sequence",
+    "seq"
+  ],
+  "author": "Fabrizio Ruggeri",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^3.10.1"
+  }
+}
