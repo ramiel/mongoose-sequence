@@ -12,6 +12,10 @@
     "sequence",
     "seq"
   ],
+  "repository" :{ 
+    "type" : "git",
+    "url" : "https://github.com/npm/npm.git"
+  },
   "author": {
     "name": "Fabrizio Ruggeri",
     "email": "fabrizio.ruggeri@gmail.com",
