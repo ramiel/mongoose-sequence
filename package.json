@@ -16,5 +16,8 @@
   "license": "ISC",
   "dependencies": {
     "lodash": "^3.10.1"
+  },
+  "peerDependencies": {
+    "mongoose": ">=3"
   }
 }
