@@ -12,8 +12,12 @@
     "sequence",
     "seq"
   ],
-  "author": "Fabrizio Ruggeri",
-  "license": "ISC",
+  "author": {
+    "name": "Fabrizio Ruggeri",
+    "email": "fabrizio.ruggeri@gmail.com",
+    "url": "http://www.ramielcreations.com/"
+  },
+  "license": "GPL-2.0",
   "dependencies": {
     "lodash": "^3.10.1"
   },
