@@ -1,4 +1,4 @@
-# mongoose-autoincrement
+# mongoose-sequence
 
 Generate autoincrement fields for mongoose.
 
