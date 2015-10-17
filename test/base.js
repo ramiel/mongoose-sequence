@@ -46,16 +46,16 @@ describe('Basic', function() {
                 city: String,
                 inhabitant: Number
             });
-            ComposedSchema.plugin(AutoIncrement, {inc_field: 'inhabitant', reference_fields: ['country', 'city']});
+            ComposedSchema.plugin(AutoIncrement, {id: 'inhabitant_counter', inc_field: 'inhabitant', reference_fields: ['country', 'city']});
             this.Composed = mongoose.model('Composed', ComposedSchema);
 
-            // var ComposedManualSchema = new Schema({
-            //     country: String,
-            //     city: String,
-            //     inhabitant: Number
-            // });
-            // ComposedManualSchema.plugin(AutoIncrement, {inc_field: 'inhabitant', reference_fields: ['country', 'city'], disable_hooks: true});
-            // this.ComposedManual = mongoose.model('ComposedManual', ComposedManualSchema);
+            var ComposedManualSchema = new Schema({
+                country: String,
+                city: String,
+                inhabitant: Number
+            });
+            ComposedManualSchema.plugin(AutoIncrement, {id:'inhabitant_counter_manual', inc_field: 'inhabitant', reference_fields: ['country', 'city'], disable_hooks: true});
+            this.ComposedManual = mongoose.model('ComposedManual', ComposedManualSchema);
         });
 
         describe('a simple id field', function() {
@@ -213,7 +213,7 @@ describe('Basic', function() {
                 });
             });
 
-            it.skip('with a manual field do not increment on save', function(done) {
+            it('with a manual field do not increment on save', function(done) {
                 var t = new this.ComposedManual({country:'France', city:'Paris'});
                 t.save(function(err) {
                     if (err) return done(err);
@@ -222,9 +222,9 @@ describe('Basic', function() {
                 });
             });
 
-            it.skip('with a manual field increment manually', function(done) {
+            it('with a manual field increment manually', function(done) {
                 this.ComposedManual.findOne({}, function(err, entity) {
-                    entity.setNext(['country', 'city'], function(err, entity) {
+                    entity.setNext('inhabitant_counter_manual', function(err, entity) {
                         if (err) return done(err);
                         assert.deepEqual(entity.inhabitant, 1);
                         done();
