@@ -1,1 +1,1 @@
-module.exports = require('./lib/auto_increment');
+module.exports = require('./lib/sequence');

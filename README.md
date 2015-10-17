@@ -1,16 +1,17 @@
 # Mongoose sequence plugin
 
-[![Build Status](https://travis-ci.org/ramiel/mongoose-sequence.svg)](https://travis-ci.org/ramiel/mongoose-sequence)
+[![Build Status](https://travis-ci.org/ramiel/mongoose-sequence.svg?branch=master)](https://travis-ci.org/ramiel/mongoose-sequence)
 
 This plugin let you create fields which autoincrement their value:  
-- every time a new document is inserted in collection
+- every time a new document is inserted in a collection  
+or
 - when you esplicitly want to increment them
 
 This increment can be:  
 - __global__: every document has a unique value for the sequence field
 - __scoped__: the counter depends on the value of other field(s)
 
-Multiple counter can be setted for a collection
+Multiple counter can be set for a collection
 
 ## Global sequences
 
@@ -42,7 +43,7 @@ UserSchema = mongoose.Schema({
     _id: Number,
     name: String
 }, { _id: false });
-UserSchema.plugin(AutoIncrement, {model: 'User'});
+UserSchema.plugin(AutoIncrement);
 ```
 
 In this case you don't have to specify `inc_field` because the default value is `_id`
@@ -63,7 +64,7 @@ this time we specified explicitly the field `like`. There is no difference betwe
 So, let's say to the plugin we want the `like` field to be a safe counter
 
 ```javascript
-UserSchema.plugin(AutoIncrement, {model: 'User', inc_field: 'like', disable_hooks: true});
+UserSchema.plugin(AutoIncrement, {inc_field: 'like', disable_hooks: true});
 ```
 
 We specified `disable_hooks`. This avoid the field to be incremented when a new document is saved. So, how to increment this field? Your models has a new method: `setNext`. You must specify which sequence you want to increment and a callback. Here an example:
@@ -75,6 +76,26 @@ User.findOne({name:'George'}, function(err, user){
     });
 });
 ```
+
+You noticed that the method `setNext` takes, as argument, the counter field name. Is possible to give a name to the counter and use it as reference. For the previous example we can define the counter like this:
+
+```javascript
+UserSchema.plugin(AutoIncrement, {id:'like_counter', inc_field: 'like', disable_hooks: true});
+```
+
+and then using
+
+```javascript
+user.setNext('like_counter', function(err, user){
+    ...
+});
+```
+
+So, if you not specify the `id`, the field name is used. Even if you're not forced to specify an id, its use is strongly suggested. This because if you have two different counters, which refers to fields with the same name, they will collide and incrementing one, will increment the other too.
+So use unique id to be sure to avoid collision.
+
+As we will see, the use of an id for the counter is mandatory when you're are defining a `scoped counter`.
+
 
 ## Advanced
 
@@ -88,16 +109,17 @@ UserSchema = mongoose.Schema({
     name: String,
     country: String,
     city: String,
-    inhabitant: Number
+    inhabitants: Number
 });
 ```
 
 Every time a new Parisian is added the counting of Parisians have to be incremented. The inhabitants of New York must not interfer and have their separated counting. We should define a __scoped__ counter which says, increment the counter, depending on the value of other fields.
 
 ```
-UserSchema.plugin(AutoIncrement, {model: 'User', inc_field: 'inhabitant', reference_fields: ['country','city'] });
+UserSchema.plugin(AutoIncrement, {id: 'inhabitant_seq', inc_field: 'inhabitants', reference_fields: ['country','city'] });
 ```
 
+Notice that we have to use an id for our sequence, otherwise the plugin will raise an error.
 Now save a new user
 ```
 var user = new User({
@@ -108,15 +130,25 @@ var user = new User({
 user.save();
 ```
 
-This user will have the `inhabitant` counter to 1.
+This user will have the `inhabitants` counter to 1.
 If now we add a new inhabitant from New York, this will have the counter to 1 also, because the counter is referenced to the value of the fields country and city.
 
-If we want to increment manually this counter we have to specify the reference fields as an array in the `setNext` method
+If we want to increment manually this counter we have to specify the id of the sequence in the `setNext` method
 
 ```javascript
-user.setNext(['city','country'], function(err, user){
-    user.inhabitant; // the counter value
+user.setNext('inhabitant_seq', function(err, user){
+    user.inhabitants; // the counter value
 });
 ```
 
 Of course this example is a bit forced and this is for sure not the perfect use case. The field country and city have to be present and must not change during the life of the document because no automatic hook are set on the change of those values. But there are situation when you want a similar behaviour.
+
+### Options
+
+This plugin accept a series of options.
+
+- __inc_field__: The name of the field to increment. Mandatory, default is `_id`
+- __id__: Id of the sequence. Is mandatory only for scoped sequences but its use is strongly encouraged.
+- __reference_fields__: The field to reference for a scoped counter. Optional
+- __disable_hooks__: If true, the counter will not be incremented on saving a new document
+- __collection_name__: By default the collection name for the counters is `counters`. You can override it using this option

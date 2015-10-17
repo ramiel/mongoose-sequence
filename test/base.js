@@ -22,43 +22,20 @@ describe('Basic', function() {
 
     describe('Global sequences', function() {
 
-        before(function createSimpleSchemas() {
-            var SimpleFieldSchema = new Schema({
-                id: Number,
-                val: String
-            });
-            SimpleFieldSchema.plugin(AutoIncrement, {inc_field: 'id'});
-            this.SimpleField = mongoose.model('SimpleField', SimpleFieldSchema);
-
-            var MainIdSchema = new Schema({
-            }, { _id: false });
-            MainIdSchema.plugin(AutoIncrement);
-            this.MainId = mongoose.model('MainId', MainIdSchema);
-
-            var ManualSchema = new Schema({
-                like: Number
-            });
-            ManualSchema.plugin(AutoIncrement, {inc_field: 'like', disable_hooks: true});
-            this.Manual = mongoose.model('Manual', ManualSchema);
-
-            var ComposedSchema = new Schema({
-                country: String,
-                city: String,
-                inhabitant: Number
-            });
-            ComposedSchema.plugin(AutoIncrement, {inc_field: 'inhabitant', reference_fields: ['country', 'city']});
-            this.Composed = mongoose.model('Composed', ComposedSchema);
-
-            // var ComposedManualSchema = new Schema({
-            //     country: String,
-            //     city: String,
-            //     inhabitant: Number
-            // });
-            // ComposedManualSchema.plugin(AutoIncrement, {inc_field: 'inhabitant', reference_fields: ['country', 'city'], disable_hooks: true});
-            // this.ComposedManual = mongoose.model('ComposedManual', ComposedManualSchema);
-        });
-
         describe('a simple id field', function() {
+
+            before(function() {
+                var SimpleFieldSchema = new Schema({
+                    id: Number,
+                    val: String
+                });
+                SimpleFieldSchema.plugin(AutoIncrement, {inc_field: 'id'});
+                this.SimpleField = mongoose.model('SimpleField', SimpleFieldSchema);
+
+                var MainIdSchema = new Schema({}, { _id: false });
+                MainIdSchema.plugin(AutoIncrement);
+                this.MainId = mongoose.model('MainId', MainIdSchema);
+            });
 
             it('using the plugin models gain setNext methods', function() {
                 var t = new this.SimpleField();
@@ -163,6 +140,14 @@ describe('Basic', function() {
 
         describe('a manual increment field', function() {
 
+            before(function() {
+                var ManualSchema = new Schema({
+                    like: Number
+                });
+                ManualSchema.plugin(AutoIncrement, {inc_field: 'like', disable_hooks: true});
+                this.Manual = mongoose.model('Manual', ManualSchema);
+            });
+
             it('is not incremented on save', function(done) {
                 var t = new this.Manual({});
                 t.save(function(err) {
@@ -184,7 +169,17 @@ describe('Basic', function() {
 
         });
 
-        describe.only('a counter which referes others fields', function() {
+        describe('a counter which referes others fields', function() {
+
+            before(function() {
+                var ComposedSchema = new Schema({
+                    country: String,
+                    city: String,
+                    inhabitant: Number
+                });
+                ComposedSchema.plugin(AutoIncrement, {id: 'inhabitant_counter', inc_field: 'inhabitant', reference_fields: ['country', 'city']});
+                this.Composed = mongoose.model('Composed', ComposedSchema);
+            });
 
             it('increment on save', function(done) {
                 var t = new this.Composed({country:'France', city:'Paris'});
@@ -213,7 +208,21 @@ describe('Basic', function() {
                 });
             });
 
-            it.skip('with a manual field do not increment on save', function(done) {
+        });
+
+        describe('A counter which referes to other fields with manual increment', function() {
+
+            before(function createSimpleSchemas() {
+                var ComposedManualSchema = new Schema({
+                    country: String,
+                    city: String,
+                    inhabitant: Number
+                });
+                ComposedManualSchema.plugin(AutoIncrement, {id:'inhabitant_counter_manual', inc_field: 'inhabitant', reference_fields: ['country', 'city'], disable_hooks: true});
+                this.ComposedManual = mongoose.model('ComposedManual', ComposedManualSchema);
+            });
+
+            it('with a manual field do not increment on save', function(done) {
                 var t = new this.ComposedManual({country:'France', city:'Paris'});
                 t.save(function(err) {
                     if (err) return done(err);
@@ -222,9 +231,9 @@ describe('Basic', function() {
                 });
             });
 
-            it.skip('with a manual field increment manually', function(done) {
+            it('with a manual field increment manually', function(done) {
                 this.ComposedManual.findOne({}, function(err, entity) {
-                    entity.setNext(['country', 'city'], function(err, entity) {
+                    entity.setNext('inhabitant_counter_manual', function(err, entity) {
                         if (err) return done(err);
                         assert.deepEqual(entity.inhabitant, 1);
                         done();
