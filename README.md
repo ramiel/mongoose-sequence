@@ -1,5 +1,7 @@
 # Mongoose sequence plugin
 
+[![Build Status](https://travis-ci.org/ramiel/mongoose-sequence.svg)](https://travis-ci.org/ramiel/mongoose-sequence)
+
 This plugin let you create fields which autoincrement their value:  
 - every time a new document is inserted in collection
 - when you esplicitly want to increment them
