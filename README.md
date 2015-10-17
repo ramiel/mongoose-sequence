@@ -27,19 +27,19 @@ mongoose.model('User', UserSchema);
 You don't need to define the `id` field in your schema because the plugin automatically set it for you. The only thing you have to do is to call:
 
 ```javascript
-UserSchema.plugin(AutoIncrement, {model: 'User', inc_field: 'id'});
+UserSchema.plugin(AutoIncrement, {inc_field: 'id'});
 ```
 
 Every time a new user is created, the `id` field will have an incremental number. The operation is atomic and is based on [this](http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/) specification.
 A commodity collection named `counters` is created for you. You can override the name of this collection but we will see this later with the `options`.
 
-If you want to increment the `_id` field which is special to mongoose, you have to explicitly specify it as a Number
+If you want to increment the `_id` field which is special to mongoose, you have to explicitly specify it as a Number and tell mongoose to not interfer:
 
 ```javascript
 UserSchema = mongoose.Schema({
     _id: Number,
     name: String
-});
+}, { _id: false });
 UserSchema.plugin(AutoIncrement, {model: 'User'});
 ```
 
