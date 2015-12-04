@@ -11,7 +11,11 @@ This increment can be:
 - __global__: every document has a unique value for the sequence field
 - __scoped__: the counter depends on the value of other field(s)
 
-Multiple counter can be set for a collection
+Multiple counter can be set for a collection.
+
+## Requisites
+
+This plugin need mongoose version 4.0.0 or above
 
 ## Global sequences
 
