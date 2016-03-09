@@ -199,15 +199,13 @@ describe('Basic => ', function() {
 
             before(function(done) {
                 var ManualSchema = new Schema({
+                    name: String,
                     like: Number
                 });
                 ManualSchema.plugin(AutoIncrement, {inc_field: 'like', disable_hooks: true});
                 this.Manual = mongoose.model('Manual', ManualSchema);
                 var t = new this.Manual({});
-                t.save(function(err) {
-                    if (err) return done(err);
-                    done();
-                });
+                t.save(done);
             });
 
             it('is not incremented on save', function(done) {
@@ -226,6 +224,21 @@ describe('Basic => ', function() {
                         if (err) return done(err);
                         assert.deepEqual(entity.like, 1);
                         done();
+                    });
+                });
+            });
+
+            it('is incremented manually and the value is already saved', function(done) {
+                var Manual = this.Manual;
+                Manual.findOne({}, function(err, entity) {
+                    if(err) return done(err);
+                    entity.setNext('like', function(err, entity) {
+                        if (err) return done(err);
+                        Manual.findOne({}, function(err, entity){
+                            if (err) return done(err);
+                            assert.deepEqual(entity.like, 2);
+                            done();
+                        });
                     });
                 });
             });

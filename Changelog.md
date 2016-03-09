@@ -1,6 +1,8 @@
 # Next
 
 - Fixed bug which prevent more than one counter to work on a collection
+- When setNext is called the document is saved with the incremented field
+    + This breaks the precedent behavior but is more natural and behave like the save pre-hook
 
 # 2.0.0
 
