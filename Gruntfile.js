@@ -1,6 +1,12 @@
 module.exports = function(grunt) {
+    require('load-grunt-tasks')(grunt);
+    
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+
+        eslint: {
+            target: ['Gruntfile.js','test/**/*.js','lib/**/*.js']
+        },
 
         mochacov: {
             options: {
@@ -30,10 +36,15 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-mocha-cov');
 
-    grunt.registerTask('default', ['test']);
+    grunt.registerTask('lint', 'Run the linter for the code' ['eslint']);
+
+    var testTasks = ['eslint', 'mochacov:main'];
     if(process.env.TRAVIS){
-        grunt.registerTask('test', 'Run tests', ['mochacov:main','mochacov:coveralls']);
+        testTasks.push('mochacov:coveralls');
     }else{
-        grunt.registerTask('test', 'Run tests', ['mochacov:main','mochacov:coverage']);
+        testTasks.push('mochacov:coverage');
     }
+    grunt.registerTask('test', 'Run tests', testTasks);
+    grunt.registerTask('default', ['lint']);
+
 };
