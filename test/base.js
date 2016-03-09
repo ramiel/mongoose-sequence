@@ -163,6 +163,36 @@ describe('Basic => ', function() {
                 );
             });
 
+            describe('with a doulbe instantiation => ', function(){
+
+                before(function(done){
+                    var DoubleFieldsSchema = new Schema({
+                        name: String,
+                        like: Number,
+                        score: Number
+                    });
+                    DoubleFieldsSchema.plugin(AutoIncrement, {id: 'like_counter', inc_field: 'like', disable_hooks: true});
+                    DoubleFieldsSchema.plugin(AutoIncrement, {id: 'score_counter', inc_field: 'score', disable_hooks: true});
+
+                    this.DoubleFields = mongoose.model('DoubleFields', DoubleFieldsSchema);
+
+                    var double = this.DoubleFields({name: 'me'});
+                    double.save(done);
+                });
+
+                it('incrementes the correct counter', function(done){
+                    this.DoubleFields.findOne({name: 'me'}, function(err, double){
+                        if(err) return done(err);
+                        double.setNext('like_counter', function(err, double){
+                            if(err) return done(err);
+                            assert.isUndefined(double.score);
+                            assert.deepEqual(double.like, 1);
+                            done();
+                        });
+                    });
+                });
+            });
+
         });
 
         describe('a manual increment field => ', function() {

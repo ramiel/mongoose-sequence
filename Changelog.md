@@ -1,3 +1,7 @@
+# Next
+
+- Fixed bug which prevent more than one counter to work on a collection
+
 # 2.0.0
 
 - Updated mongoose dependecy to version 4.0.0
