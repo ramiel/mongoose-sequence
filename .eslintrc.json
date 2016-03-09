@@ -23,6 +23,7 @@
             2,
             "always"
         ],
+        "no-console": 1,
         "camelcase": [1, {"properties": "never"}],
         "no-unused-vars": [2, {"vars": "all", "args": "none"}]
     }

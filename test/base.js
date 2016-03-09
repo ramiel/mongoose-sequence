@@ -6,10 +6,14 @@ var chai = require('chai'),
     Schema = mongoose.Schema,
     AutoIncrement = require('../index');
 
-describe('Basic', function() {
+describe('Basic => ', function() {
 
     before(function connection(done) {
-        mongoose.connection.on('open', done);
+        mongoose.connection.on('open', function(){
+            mongoose.connection.db.dropDatabase(function(err) {
+                done(err);
+            });
+        });
         mongoose.connection.on('error', done);
         mongoose.connect('mongodb://127.0.0.1/mongoose-sequence-testing');
     });
@@ -21,9 +25,9 @@ describe('Basic', function() {
         });
     });
 
-    describe('Global sequences', function() {
+    describe('Global sequences => ', function() {
 
-        describe('a simple id field', function() {
+        describe('a simple id field => ', function() {
 
             before(function() {
                 var SimpleFieldSchema = new Schema({
@@ -41,6 +45,27 @@ describe('Basic', function() {
             it('using the plugin models gain setNext methods', function() {
                 var t = new this.SimpleField();
                 assert.isFunction(t.setNext);
+            });
+
+            it('is not possible to set an incremente field on a non Number field', function(){
+                var UnusedSchema = new Schema({
+                    id: Number,
+                    val: String
+                });
+                assert.throws(function(){
+                    UnusedSchema.plugin(AutoIncrement, {inc_field: 'val'});
+                }, Error);
+            });
+
+            it('is not possible to redefine a sequence', function(){
+                var UnusedSchema = new Schema({
+                    id: Number,
+                    val: String
+                });
+                assert.throws(function(){
+                    UnusedSchema.plugin(AutoIncrement, {inc_field: 'id'});
+                    UnusedSchema.plugin(AutoIncrement, {inc_field: 'id'});
+                }, 'Counter already defined for field "id"');
             });
 
             it('creating different documents, the counter field is incremented', function(done) {
@@ -140,14 +165,19 @@ describe('Basic', function() {
 
         });
 
-        describe('a manual increment field', function() {
+        describe('a manual increment field => ', function() {
 
-            before(function() {
+            before(function(done) {
                 var ManualSchema = new Schema({
                     like: Number
                 });
                 ManualSchema.plugin(AutoIncrement, {inc_field: 'like', disable_hooks: true});
                 this.Manual = mongoose.model('Manual', ManualSchema);
+                var t = new this.Manual({});
+                t.save(function(err) {
+                    if (err) return done(err);
+                    done();
+                });
             });
 
             it('is not incremented on save', function(done) {
@@ -161,6 +191,7 @@ describe('Basic', function() {
 
             it('is incremented manually', function(done) {
                 this.Manual.findOne({}, function(err, entity) {
+                    if(err) return done(err);
                     entity.setNext('like', function(err, entity) {
                         if (err) return done(err);
                         assert.deepEqual(entity.like, 1);
@@ -169,9 +200,19 @@ describe('Basic', function() {
                 });
             });
 
+            it('is not incremented manually with a wrong sequence id', function(done) {
+                this.Manual.findOne({}, function(err, entity) {
+                    if(err) return done(err);
+                    entity.setNext('likelol', function(err, entity) {
+                        assert.isNotNull(err);
+                        done();
+                    });
+                });
+            });
+
         });
 
-        describe('a counter which referes others fields', function() {
+        describe('a counter which referes others fields => ', function() {
 
             before(function() {
                 var ComposedSchema = new Schema({
@@ -212,38 +253,57 @@ describe('Basic', function() {
 
         });
 
-        describe('A counter which referes to other fields with manual increment', function() {
+        describe('Reference fields => ', function(){
 
-            before(function createSimpleSchemas() {
-                var ComposedManualSchema = new Schema({
-                    country: String,
-                    city: String,
-                    inhabitant: Number
-                });
-                ComposedManualSchema.plugin(AutoIncrement, {id:'inhabitant_counter_manual', inc_field: 'inhabitant', reference_fields: ['country', 'city'], disable_hooks: true});
-                this.ComposedManual = mongoose.model('ComposedManual', ComposedManualSchema);
-            });
+            describe('defining the sequence => ', function(){
 
-            it('with a manual field do not increment on save', function(done) {
-                var t = new this.ComposedManual({country:'France', city:'Paris'});
-                t.save(function(err) {
-                    if (err) return done(err);
-                    assert.notEqual(t.inhabitant, 1);
-                    done();
+                it('is not possible without specifing an id', function(){
+                    var UnusedSchema = new Schema({
+                        country: String,
+                        city: String,
+                        inhabitant: Number
+                    });
+                    assert.throws(function(){
+                        UnusedSchema.plugin(AutoIncrement, {inc_field: 'inhabitant', reference_fields: ['country', 'city'], disable_hooks: true});
+                    }, Error);
+                    
                 });
             });
 
-            it('with a manual field increment manually', function(done) {
-                this.ComposedManual.findOne({}, function(err, entity) {
-                    entity.setNext('inhabitant_counter_manual', function(err, entity) {
+            describe('A counter which referes to other fields with manual increment => ', function() {
+
+                before(function createSimpleSchemas() {
+                    var ComposedManualSchema = new Schema({
+                        country: String,
+                        city: String,
+                        inhabitant: Number
+                    });
+                    ComposedManualSchema.plugin(AutoIncrement, {id:'inhabitant_counter_manual', inc_field: 'inhabitant', reference_fields: ['country', 'city'], disable_hooks: true});
+                    this.ComposedManual = mongoose.model('ComposedManual', ComposedManualSchema);
+                });
+
+                it('with a manual field do not increment on save', function(done) {
+                    var t = new this.ComposedManual({country:'France', city:'Paris'});
+                    t.save(function(err) {
                         if (err) return done(err);
-                        assert.deepEqual(entity.inhabitant, 1);
+                        assert.notEqual(t.inhabitant, 1);
                         done();
                     });
                 });
+
+                it('with a manual field increment manually', function(done) {
+                    this.ComposedManual.findOne({}, function(err, entity) {
+                        entity.setNext('inhabitant_counter_manual', function(err, entity) {
+                            if (err) return done(err);
+                            assert.deepEqual(entity.inhabitant, 1);
+                            done();
+                        });
+                    });
+                });
+
             });
 
-        });
+        });        
 
     });
 });

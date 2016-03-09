@@ -1,9 +1,0 @@
-{
-    "preset": "airbnb",
-    "disallowMultipleVarDecl": null,
-    "requireMultipleVarDecl": true,
-    "validateIndentation": 4,
-    "requireSpaceAfterLineComment": true,
-    "requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
-    "excludeFiles": ["node_modules/**"]
-}
