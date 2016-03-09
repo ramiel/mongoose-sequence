@@ -1,3 +1,4 @@
+/*eslint-env mocha */
 var chai = require('chai'),
     assert = chai.assert,
     async = require('async'),
@@ -95,13 +96,14 @@ describe('Basic', function() {
                 );
             });
 
-            it('updating a document do not increment the counter', function() {
+            it('updating a document do not increment the counter', function(done) {
                 this.SimpleField.findOne({}, function(err, entity) {
                     var id = entity.id;
                     entity.val = 'something';
                     entity.save(function(err) {
                         if (err) return done(err);
                         assert.deepEqual(entity.id, id);
+                        done();
                     });
                 });
             });
