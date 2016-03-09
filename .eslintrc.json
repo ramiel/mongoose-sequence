@@ -1,0 +1,30 @@
+{
+    "env": {
+        "node": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "rules": {
+        "indent": [
+            1,
+            4
+        ],
+        "linebreak-style": [
+            2,
+            "unix"
+        ],
+        "quotes": [
+            2,
+            "single"
+        ],
+        "semi": [
+            2,
+            "always"
+        ],
+        "no-console": 1,
+        "camelcase": [1, {"properties": "never"}],
+        "no-unused-vars": [2, {"vars": "all", "args": "none"}]
+    }
+}

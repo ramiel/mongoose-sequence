@@ -1,10 +1,10 @@
 {
   "name": "mongoose-sequence",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Very generic autoincrement plugin for mongoose",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "grunt test"
   },
   "keywords": [
     "mongoose",
@@ -26,12 +26,27 @@
     "lodash": "^3.10.1"
   },
   "peerDependencies": {
-    "mongoose": ">=3"
+    "mongoose": ">=4"
   },
   "devDependencies": {
     "async": "^1.4.2",
     "chai": "^3.3.0",
+    "grunt": "^0.4.5",
+    "grunt-eslint": "^18.0.0",
+    "grunt-mocha-cov": "^0.4.0",
+    "load-grunt-tasks": "^3.4.1",
     "mocha": "^2.3.3",
     "mongoose": "^4.1.11"
+  },
+  "config": {
+    "blanket": {
+      "pattern": [
+        "lib"
+      ],
+      "data-cover-never": [
+        "node_modules",
+        "test"
+      ]
+    }
   }
 }
