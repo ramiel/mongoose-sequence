@@ -163,21 +163,49 @@ describe('Basic => ', function() {
                 );
             });
 
+            describe('with a doulbe instantiation => ', function(){
+
+                before(function(done){
+                    var DoubleFieldsSchema = new Schema({
+                        name: String,
+                        like: Number,
+                        score: Number
+                    });
+                    DoubleFieldsSchema.plugin(AutoIncrement, {id: 'like_counter', inc_field: 'like', disable_hooks: true});
+                    DoubleFieldsSchema.plugin(AutoIncrement, {id: 'score_counter', inc_field: 'score', disable_hooks: true});
+
+                    this.DoubleFields = mongoose.model('DoubleFields', DoubleFieldsSchema);
+
+                    var double = this.DoubleFields({name: 'me'});
+                    double.save(done);
+                });
+
+                it('incrementes the correct counter', function(done){
+                    this.DoubleFields.findOne({name: 'me'}, function(err, double){
+                        if(err) return done(err);
+                        double.setNext('like_counter', function(err, double){
+                            if(err) return done(err);
+                            assert.isUndefined(double.score);
+                            assert.deepEqual(double.like, 1);
+                            done();
+                        });
+                    });
+                });
+            });
+
         });
 
         describe('a manual increment field => ', function() {
 
             before(function(done) {
                 var ManualSchema = new Schema({
+                    name: String,
                     like: Number
                 });
                 ManualSchema.plugin(AutoIncrement, {inc_field: 'like', disable_hooks: true});
                 this.Manual = mongoose.model('Manual', ManualSchema);
                 var t = new this.Manual({});
-                t.save(function(err) {
-                    if (err) return done(err);
-                    done();
-                });
+                t.save(done);
             });
 
             it('is not incremented on save', function(done) {
@@ -196,6 +224,21 @@ describe('Basic => ', function() {
                         if (err) return done(err);
                         assert.deepEqual(entity.like, 1);
                         done();
+                    });
+                });
+            });
+
+            it('is incremented manually and the value is already saved', function(done) {
+                var Manual = this.Manual;
+                Manual.findOne({}, function(err, entity) {
+                    if(err) return done(err);
+                    entity.setNext('like', function(err, entity) {
+                        if (err) return done(err);
+                        Manual.findOne({}, function(err, entity){
+                            if (err) return done(err);
+                            assert.deepEqual(entity.like, 2);
+                            done();
+                        });
                     });
                 });
             });

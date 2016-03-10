@@ -96,9 +96,12 @@ user.setNext('like_counter', function(err, user){
 ```
 
 So, if you not specify the `id`, the field name is used. Even if you're not forced to specify an id, its use is strongly suggested. This because if you have two different counters, which refers to fields with the same name, they will collide and incrementing one, will increment the other too.
-So use unique id to be sure to avoid collision.
+So use unique id to be sure to avoid collision. In any case any collision led to an error by the plugin.
 
 As we will see, the use of an id for the counter is mandatory when you're are defining a `scoped counter`.
+
+**NOTE**: When you call `setNext` the document is automatically saved. This behavior is different from version <=2.0.0
+
 
 
 ## Advanced
