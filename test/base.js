@@ -9,11 +9,7 @@ var chai = require('chai'),
 describe('Basic => ', function() {
 
     before(function connection(done) {
-        mongoose.connection.on('open', function(){
-            mongoose.connection.db.dropDatabase(function(err) {
-                done(err);
-            });
-        });
+        mongoose.connection.on('open', done);
         mongoose.connection.on('error', done);
         mongoose.connect('mongodb://127.0.0.1/mongoose-sequence-testing');
     });
@@ -200,29 +196,29 @@ describe('Basic => ', function() {
             before(function(done) {
                 var ManualSchema = new Schema({
                     name: String,
-                    like: Number
+                    membercount: Number
                 });
-                ManualSchema.plugin(AutoIncrement, {inc_field: 'like', disable_hooks: true});
+                ManualSchema.plugin(AutoIncrement, {inc_field: 'membercount', disable_hooks: true});
                 this.Manual = mongoose.model('Manual', ManualSchema);
-                var t = new this.Manual({});
-                t.save(done);
+                this.Manual.create([{name: 't1'},{name: 't2'}], done);
+
             });
 
             it('is not incremented on save', function(done) {
                 var t = new this.Manual({});
                 t.save(function(err) {
                     if (err) return done(err);
-                    assert.notEqual(t.like, 1);
+                    assert.notEqual(t.membercount, 1);
                     done();
                 });
             });
 
             it('is incremented manually', function(done) {
-                this.Manual.findOne({}, function(err, entity) {
+                this.Manual.findOne({name: 't1'}, function(err, entity) {
                     if(err) return done(err);
-                    entity.setNext('like', function(err, entity) {
+                    entity.setNext('membercount', function(err, entity) {
                         if (err) return done(err);
-                        assert.deepEqual(entity.like, 1);
+                        assert.deepEqual(entity.membercount, 1);
                         done();
                     });
                 });
@@ -230,13 +226,13 @@ describe('Basic => ', function() {
 
             it('is incremented manually and the value is already saved', function(done) {
                 var Manual = this.Manual;
-                Manual.findOne({}, function(err, entity) {
+                Manual.findOne({name: 't2'}, function(err, entity) {
                     if(err) return done(err);
-                    entity.setNext('like', function(err, entity) {
+                    entity.setNext('membercount', function(err, entity) {
                         if (err) return done(err);
-                        Manual.findOne({}, function(err, entity){
+                        Manual.findOne({name: 't2'}, function(err, entity){
                             if (err) return done(err);
-                            assert.deepEqual(entity.like, 2);
+                            assert.deepEqual(entity.membercount, 2);
                             done();
                         });
                     });
@@ -244,9 +240,9 @@ describe('Basic => ', function() {
             });
 
             it('is not incremented manually with a wrong sequence id', function(done) {
-                this.Manual.findOne({}, function(err, entity) {
+                this.Manual.findOne({name: 't1'}, function(err, entity) {
                     if(err) return done(err);
-                    entity.setNext('likelol', function(err, entity) {
+                    entity.setNext('membercountlol', function(err, entity) {
                         assert.isNotNull(err);
                         done();
                     });
