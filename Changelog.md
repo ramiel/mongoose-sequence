@@ -1,4 +1,4 @@
-# Next
+# 3.0.0
 
 - Fixed bug which prevent more than one counter to work on a collection
 - When setNext is called the document is saved with the incremented field
