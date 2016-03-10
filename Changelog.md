@@ -1,4 +1,4 @@
-# Next
+# 3.0.1
 
 - Fixed tests for Travis-CI environment
 
