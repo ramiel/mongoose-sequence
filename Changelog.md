@@ -1,3 +1,7 @@
+# 3.0.1
+
+- Fixed tests for Travis-CI environment
+
 # 3.0.0
 
 - Fixed bug which prevent more than one counter to work on a collection
