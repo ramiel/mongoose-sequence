@@ -1,3 +1,11 @@
+# 3.0.2
+
+- Updated readme
+    + added coverall badge
+    + added installation instructions
+    + some section have benn rewrote
+- Updated dependencies
+
 # 3.0.1
 
 - Fixed tests for Travis-CI environment
