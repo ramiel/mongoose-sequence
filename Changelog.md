@@ -1,3 +1,10 @@
+# Next
+
+- Updated readme
+    + added coverall badge
+    + added installation instructions
+- Updated dependencies
+
 # 3.0.1
 
 - Fixed tests for Travis-CI environment
