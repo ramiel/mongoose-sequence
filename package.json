@@ -31,11 +31,13 @@
   "devDependencies": {
     "async": "^1.4.2",
     "chai": "^3.3.0",
+    "coveralls": "^2.11.8",
     "grunt": "^0.4.5",
     "grunt-eslint": "^18.0.0",
-    "grunt-mocha-cov": "^0.4.0",
+    "grunt-mocha-istanbul": "^3.0.1",
+    "istanbul": "^0.4.2",
     "load-grunt-tasks": "^3.4.1",
-    "mocha": "^2.3.3",
+    "mocha": "^2.4.5",
     "mongoose": "^4.1.11"
   },
   "config": {
