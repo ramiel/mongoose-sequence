@@ -8,41 +8,36 @@ module.exports = function(grunt) {
             target: ['Gruntfile.js','test/**/*.js','lib/**/*.js']
         },
 
-        mochacov: {
-            options: {
-                files: ['test/**/*.js']
-            },
-            
-            main: {
-                options:{
-                    reporter: 'spec'
-                }
-            },
-            
+        mocha_istanbul: {
             coverage: {
+                src: 'test',
                 options: {
-                    reporter: 'html-cov',
-                    output: 'coverage/coverage.html'
+                    mask: '*.js',
+                    reportFormats: ['html','lcovonly']
                 }
             },
-
             coveralls: {
+                src: 'test',
                 options: {
-                    coveralls: true
+                    coverage: true,
+                    mask: '*.js',
+                    reportFormats: ['html','lcovonly']
                 }
             }
         }
     });
 
-    grunt.loadNpmTasks('grunt-mocha-cov');
+    grunt.event.on('coverage', function(lcov, done){
+        require('coveralls').handleInput(lcov, done);
+    });
 
     grunt.registerTask('lint', 'Run the linter for the code' ['eslint']);
 
-    var testTasks = ['eslint', 'mochacov:main'];
+    var testTasks = ['eslint'];
     if(process.env.TRAVIS){
-        testTasks.push('mochacov:coveralls');
+        testTasks.push('mocha_istanbul:coveralls');
     }else{
-        testTasks.push('mochacov:coverage');
+        testTasks.push('mocha_istanbul:coverage');
     }
     grunt.registerTask('test', 'Run tests', testTasks);
     grunt.registerTask('default', ['lint']);
