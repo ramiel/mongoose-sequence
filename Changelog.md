@@ -1,6 +1,7 @@
 # Next
 
- - Refactored code 
+ - Refactored code
+ - Improved jsdoc 
 
 # 3.0.2
 
