@@ -25,6 +25,17 @@
         ],
         "no-console": 1,
         "camelcase": [1, {"properties": "never"}],
-        "no-unused-vars": [2, {"vars": "all", "args": "none"}]
+        "no-unused-vars": [2, {"vars": "all", "args": "none"}],
+        "require-jsdoc": [1, {
+            "require": {
+                "FunctionDeclaration": true,
+                "MethodDefinition": true,
+                "ClassDeclaration": true
+            }
+        }],
+        "valid-jsdoc": [1,{
+            "requireReturn": false,
+            "requireReturnDescription": false
+        }]
     }
 }
