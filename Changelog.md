@@ -1,3 +1,7 @@
+# Next
+
+ - Refactored code 
+
 # 3.0.2
 
 - Updated readme
