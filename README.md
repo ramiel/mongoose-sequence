@@ -42,6 +42,10 @@ You don't need to define the `id` field in your schema because the plugin automa
 UserSchema.plugin(AutoIncrement, {inc_field: 'id'});
 ```
 
+After requiring the plugin
+
+`var AutoIncrement = require('mongoose-sequence');`
+
 Every time a new user is created, the `id` field will have an incremental number. The operation is atomic and is based on [this](http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/) specification.
 A commodity collection named `counters` is created for you. You can override the name of this collection but we will see this later with the `options`.
 
