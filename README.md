@@ -166,3 +166,7 @@ This plugin accept a series of options.
 - **reference_fields**: The field to reference for a scoped counter. Optional
 - **disable_hooks**: If true, the counter will not be incremented on saving a new document. Default to `false`
 - **collection_name**: By default the collection name to mantain the status of the counters is `counters`. You can override it using this option
+
+## Notes
+
+When using `insertMany` the plugin won't increment the counter because the needed hooks are not called. If you need to create several documents at once, use `create` instead and pass an array of documents (refer to [#7](https://github.com/ramiel/mongoose-sequence/issues/7))

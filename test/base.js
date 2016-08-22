@@ -94,6 +94,40 @@ describe('Basic => ', function() {
                 );
             });
 
+            it('creating different documents with .create, the counter field is incremented', function(done) {
+                var documents = [{val: 1}, {val: 2}];
+
+                this.SimpleField.create(documents, function(err, inserted) {
+                    if (err) return done(err);
+                    var ids = inserted.map(function(d) {return d.id;});
+
+                    try {
+                        assert.sameDeepMembers(ids, [1, 2]);
+                    }catch (e) {
+                        return done(e);
+                    }
+
+                    return done();
+                });
+            });
+
+            xit('creating different documents with .insertMany, the counter field is incremented', function(done) {
+                var documents = [{val: 1}, {val: 2}];
+
+                this.SimpleField.insertMany(documents, function(err, inserted) {
+                    if (err) return done(err);
+                    var ids = inserted.map(function(d) {return d.id;});
+
+                    try {
+                        assert.sameDeepMembers(ids, [1, 2]);
+                    }catch (e) {
+                        return done(e);
+                    }
+
+                    return done();
+                });
+            });
+
             it('handle concurrency (hard to test, just an approximation)', function(done) {
                 var documents = [],
                     createNew = function(callback) {
