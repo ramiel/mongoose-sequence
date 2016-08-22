@@ -102,7 +102,7 @@ describe('Basic => ', function() {
                     var ids = inserted.map(function(d) {return d.id;});
 
                     try {
-                        assert.sameDeepMembers(ids, [1, 2]);
+                        assert.sameDeepMembers(ids, [6, 7]);
                     }catch (e) {
                         return done(e);
                     }
@@ -119,7 +119,7 @@ describe('Basic => ', function() {
                     var ids = inserted.map(function(d) {return d.id;});
 
                     try {
-                        assert.sameDeepMembers(ids, [1, 2]);
+                        assert.sameDeepMembers(ids, [8, 9]);
                     }catch (e) {
                         return done(e);
                     }
