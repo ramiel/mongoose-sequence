@@ -4,7 +4,8 @@ var chai = require('chai'),
     async = require('async'),
     mongoose = require('mongoose'),
     Schema = mongoose.Schema,
-    AutoIncrement = require('../index');
+    AutoIncrement = require('../index'),
+    sinon = require('sinon');
 
 describe('Basic => ', function() {
 
@@ -20,6 +21,8 @@ describe('Basic => ', function() {
             mongoose.disconnect(done);
         });
     });
+
+
 
     describe('Global sequences => ', function() {
 
@@ -376,7 +379,55 @@ describe('Basic => ', function() {
 
             });
 
-        });        
+        });
+
+        describe('Error on hook', function(){
+            before(function(done) {
+                var SimpleFieldSchema = new Schema({
+                    id: Number,
+                    val: String
+                });
+
+                SimpleFieldSchema.plugin(function(schema, options) {
+                    var sequence = AutoIncrement(schema, options);
+                    sinon.stub(sequence._counterModel, 'findOneAndUpdate').yields(new Error('Incrementing error'));
+                    return sequence;
+                }, {id: 'simple_with_error_counter', inc_field: 'id'});
+                this.SimpleField = mongoose.model('SimpleFieldWithError', SimpleFieldSchema);
+
+                var ManualSchema = new Schema({
+                    name: String,
+                    membercount: Number
+                });
+                ManualSchema.plugin(function(schema, options) {
+                    var sequence = AutoIncrement(schema, options);
+                    sinon.stub(sequence, '_setNextCounter').yields(new Error('Incrementing error'));
+                    return sequence;
+                }, {id:'errored_manual_counter', inc_field: 'membercount', disable_hooks: true});
+                this.Manual = mongoose.model('ManualWithError', ManualSchema);
+                this.Manual.create([{name: 't1'},{name: 't2'}], done);
+            });
+
+            it('do not save the document if an error happens in the plugin', function(done) {
+                var t = new this.SimpleField();
+                t.save(function(err) {
+                    assert.isOk(err);
+                    assert.instanceOf(err, Error);
+                    done();
+                });
+            });
+
+            it('do not save the document after a manual incrementation if an error happens in the plugin', function(done) {
+                this.Manual.findOne({name: 't1'}, function(err, entity) {
+                    if(err) return done(err);
+                    entity.setNext('errored_manual_counter', function(err, entity) {
+                        assert.isOk(err);
+                        assert.instanceOf(err, Error);
+                        done();
+                    });
+                });
+            });
+        }); 
 
     });
 });

@@ -38,7 +38,8 @@
     "istanbul": "^0.4.2",
     "load-grunt-tasks": "^3.4.1",
     "mocha": "^2.4.5",
-    "mongoose": "^4.1.11"
+    "mongoose": "^4.1.11",
+    "sinon": "^1.17.5"
   },
   "config": {
     "blanket": {
