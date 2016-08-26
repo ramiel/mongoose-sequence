@@ -237,7 +237,7 @@ describe('Basic => ', function() {
                 });
                 var wrapper = function(schema, options) {
                     var instance = AutoIncrement(schema, options);
-                    this.setNextCounterSpy = sinon.spy(instance, '_setNextCounter');
+                    this.setNextCounterSpy = sinon.spy(instance, '_setNextCounterByReference');
                     return instance;
                 }.bind(this);
                 SimpleFieldSchema.plugin(wrapper, {id: 'id_hook_test', inc_field: 'id'});
