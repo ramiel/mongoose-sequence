@@ -358,18 +358,18 @@ describe('Basic => ', function() {
                     }.bind(this));
                 });
 
-                it('is called when upserting in an findOneAndUpdate and result in an insert', function(done){
+                it('are called when upserting in an findOneAndUpdate and result in an insert', function(done){
                     this.SimpleField.findOneAndUpdate({val: '4567'}, {tag: 'pink'}, {upsert: true}, function(err, doc){
                         sinon.assert.calledWith(
                             this.setNextCounterSpy,
                             'id_hook_test_referenced',
-                            this.instance._getCounterReferenceField({tag:'blue'})
+                            this.instance._getCounterReferenceField({tag:'pink'})
                         );
                         done(err);
                     }.bind(this));
                 });
 
-                it('is not called when upserting in an findOneAndUpdate and not result in an insert', function(done){
+                it('are not called when upserting in an findOneAndUpdate and not result in an insert', function(done){
                     this.SimpleField.findOneAndUpdate({val: '1234'}, {tag: 'yellow'}, {upsert: true}, function(err, doc){
                         sinon.assert.notCalled(this.setNextCounterSpy);
                         done(err);
