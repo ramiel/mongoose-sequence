@@ -228,6 +228,76 @@ describe('Basic => ', function() {
 
         });
 
+        describe('hook', function(){
+            before(function(done) {
+                var SimpleFieldSchema = new Schema({
+                    id: Number,
+                    val: String,
+                    tag: String
+                });
+                var wrapper = function(schema, options) {
+                    var instance = AutoIncrement(schema, options);
+                    this.setNextCounterSpy = sinon.spy(instance, '_setNextCounter');
+                    return instance;
+                }.bind(this);
+                SimpleFieldSchema.plugin(wrapper, {id: 'id_hook_test', inc_field: 'id'});
+                this.SimpleField = mongoose.model('SimpleFieldHookTest', SimpleFieldSchema);
+                this.SimpleField.create({val: 'existing'}, function(err){
+                    this.setNextCounterSpy.reset();
+                    done(err);
+                }.bind(this));
+            });
+
+            afterEach(function(){
+                this.setNextCounterSpy.reset();
+            });
+
+            it('is called when saving a new document', function(done){
+                var t = new this.SimpleField({val: 'a'});
+                t.save(function(err){
+                    sinon.assert.calledOnce(this.setNextCounterSpy);
+                    done(err);
+                }.bind(this));
+            });
+
+            it('is not called when saving an existing document', function(done){
+                var t = new this.SimpleField({val: 'a'});
+                t.isNew = false;
+                t.save(function(err){
+                    sinon.assert.notCalled(this.setNextCounterSpy);
+                    done(err);
+                }.bind(this));
+            });
+
+            it('is called when upserting in an update and result in an insert', function(done){
+                this.SimpleField.update({val: '1234'}, {tag: 'nothing'}, {upsert: true}, function(err, doc){
+                    sinon.assert.calledOnce(this.setNextCounterSpy);
+                    done(err);
+                }.bind(this));
+            });
+
+            it('is not called when upserting in an update and not result in an insert', function(done){
+                this.SimpleField.update({val: 'existing'}, {tag: 'update'}, {upsert: true}, function(err, doc){
+                    sinon.assert.notCalled(this.setNextCounterSpy);
+                    done(err);
+                }.bind(this));
+            });
+
+            it('is called when upserting in an findOneAndUpdate and result in an insert', function(done){
+                this.SimpleField.findOneAndUpdate({val: '4567'}, {tag: 'nothing'}, {upsert: true}, function(err, doc){
+                    sinon.assert.calledOnce(this.setNextCounterSpy);
+                    done(err);
+                }.bind(this));
+            });
+
+            it('is not called when upserting in an findOneAndUpdate and not result in an insert', function(done){
+                this.SimpleField.findOneAndUpdate({val: '1234'}, {tag: 'findOneAndUpdate'}, {upsert: true}, function(err, doc){
+                    sinon.assert.notCalled(this.setNextCounterSpy);
+                    done(err);
+                }.bind(this));
+            });
+        });
+
         describe('a manual increment field => ', function() {
 
             before(function(done) {
@@ -342,7 +412,7 @@ describe('Basic => ', function() {
                     assert.throws(function(){
                         UnusedSchema.plugin(AutoIncrement, {inc_field: 'inhabitant', reference_fields: ['country', 'city'], disable_hooks: true});
                     }, Error);
-                    
+
                 });
             });
 
@@ -427,7 +497,7 @@ describe('Basic => ', function() {
                     });
                 });
             });
-        }); 
+        });
 
     });
 });
