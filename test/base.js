@@ -6,6 +6,9 @@ var chai = require('chai'),
     Schema = mongoose.Schema,
     AutoIncrement = require('../index');
 
+// Use native promises
+mongoose.Promise = global.Promise;
+
 describe('Basic => ', function() {
 
     before(function connection(done) {
