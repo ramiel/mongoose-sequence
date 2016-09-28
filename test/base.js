@@ -7,6 +7,8 @@ var chai = require('chai'),
     AutoIncrement = require('../index'),
     sinon = require('sinon');
 
+mongoose.Promise = global.Promise;
+
 describe('Basic => ', function() {
 
     before(function connection(done) {
@@ -342,7 +344,7 @@ describe('Basic => ', function() {
                     assert.throws(function(){
                         UnusedSchema.plugin(AutoIncrement, {inc_field: 'inhabitant', reference_fields: ['country', 'city'], disable_hooks: true});
                     }, Error);
-                    
+
                 });
             });
 
@@ -377,6 +379,41 @@ describe('Basic => ', function() {
                     });
                 });
 
+            });
+
+            describe('Two schema with the samere references', function(){
+
+                before(function createTwoSchemas() {
+                    var RefFirstSchema = new Schema({
+                        country: String,
+                        city: String,
+                        inhabitant: Number
+                    });
+                    RefFirstSchema.plugin(AutoIncrement, {id:'shared_inhabitant_counter', inc_field: 'inhabitant', reference_fields: ['country', 'city']});
+                    this.RefFirst = mongoose.model('RefFirst', RefFirstSchema);
+
+                    var RefSecondSchema = new Schema({
+                        country: String,
+                        city: String,
+                        inhabitant: Number
+                    });
+                    RefSecondSchema.plugin(AutoIncrement, {id:'shared_inhabitant_counter_2', inc_field: 'inhabitant', reference_fields: ['country', 'city']});
+                    this.RefSecond = mongoose.model('RefSecond', RefSecondSchema);
+                });
+
+                it('do not share the same counter', function(done){
+                    var t = new this.RefFirst({country:'France', city:'Paris'});
+                    var t2 = new this.RefSecond({country:'France', city:'Paris'});
+                    t.save(function(err) {
+                        if (err) return done(err);
+                        assert.equal(t.inhabitant, 1);
+                        t2.save(function(err){
+                            if (err) return done(err);
+                            assert.equal(t2.inhabitant, 1);
+                            done();
+                        });
+                    });
+                });
             });
 
         });
@@ -427,7 +464,7 @@ describe('Basic => ', function() {
                     });
                 });
             });
-        }); 
+        });
 
     });
 });
