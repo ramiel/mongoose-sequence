@@ -1,3 +1,9 @@
+# 3.1.0
+
+ - Refactored code
+ - Improved jsdoc 
+ - Add tests for `insertMany` and `create`
+
 # 3.0.2
 
 - Updated readme
