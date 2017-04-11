@@ -243,6 +243,7 @@ describe('Basic => ', function() {
 
             });
 
+
             it('is not incremented on save', function(done) {
                 var t = new this.Manual({});
                 t.save(function(err) {
@@ -416,6 +417,56 @@ describe('Basic => ', function() {
                 });
             });
 
+        });
+
+        describe('Reset counter => ', function(){
+
+            before(function() {
+                var ResettableSimpleSchema = new Schema({
+                    id: Number,
+                    val: String
+                });
+                ResettableSimpleSchema.plugin(AutoIncrement, {id: 'resettablesimpleid', inc_field: 'id'});
+                this.ResettableSimple = mongoose.model('ResettableSimple', ResettableSimpleSchema);
+            });
+
+            beforeEach(function(done) {
+                var count = 0,
+                    documents = [];
+
+                async.whilst(
+                    function() { return count < 5; },
+
+                    function(callback) {
+                        count++;
+                        var t = new this.ResettableSimple();
+                        documents.push(t);
+                        t.save(callback);
+                    }.bind(this),
+
+                    done
+
+                );
+            });
+
+            it('a model gains a static "counterReset" method', function() {
+                assert.isFunction(this.ResettableSimple.counterReset);
+            });
+
+            it('after calling it, the counter is 0', function(done){
+                this.ResettableSimple.counterReset('id', function(err) {
+                    if(err) {
+                        return done(err);
+                    }
+                    var t = new this.ResettableSimple();
+                    t.save(function(err, saved) {
+                        if(err) {
+                            return done(err);
+                        }
+                        assert.deepEqual(saved.id, 0);
+                    });
+                });
+            });
         });
 
         describe('Error on hook', function(){
