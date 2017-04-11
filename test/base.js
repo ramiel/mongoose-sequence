@@ -426,7 +426,7 @@ describe('Basic => ', function() {
                     id: Number,
                     val: String
                 });
-                ResettableSimpleSchema.plugin(AutoIncrement, {id: 'resettablesimpleid', inc_field: 'id'});
+                ResettableSimpleSchema.plugin(AutoIncrement, {id: 'resettable_simple_id', inc_field: 'id'});
                 this.ResettableSimple = mongoose.model('ResettableSimple', ResettableSimpleSchema);
 
                 var ResettableComposedSchema = new Schema({
@@ -503,8 +503,8 @@ describe('Basic => ', function() {
                 assert.isFunction(this.ResettableSimple.counterReset);
             });
 
-            it('after calling it, the counter is 0', function(done){
-                this.ResettableSimple.counterReset('id', function(err) {
+            it('after calling it, the counter is 1', function(done){
+                this.ResettableSimple.counterReset('resettable_simple_id', function(err) {
                     if(err) {
                         return done(err);
                     }
@@ -513,12 +513,13 @@ describe('Basic => ', function() {
                         if(err) {
                             return done(err);
                         }
-                        assert.deepEqual(saved.id, 0);
+                        assert.deepEqual(saved.id, 1);
+                        done();
                     });
-                });
+                }.bind(this));
             });
 
-            it('for a referenced counter, the counter is 0 for any reference', function(done){
+            it('for a referenced counter, the counter is 1 for any reference', function(done){
                 this.ResettableComposed.counterReset('resettable_inhabitant_counter', function(err) {
                     if(err) {
                         return done(err);
@@ -533,14 +534,14 @@ describe('Basic => ', function() {
                             if(err) {
                                 return done(err);
                             }
-                            assert.deepEqual(tAsaved.inhabitant, 0);
-                            assert.deepEqual(tBsaved.inhabitant, 0);
+                            assert.deepEqual(tAsaved.inhabitant, 1);
+                            assert.deepEqual(tBsaved.inhabitant, 1);
                         });
                     });
                 });
             });
 
-            it('for a referenced counter with a specific value, the counter is 0 for that reference', function(done){
+            it('for a referenced counter with a specific value, the counter is 1 for that reference', function(done){
                 this.ResettableComposed.counterReset(
                     'resettable_inhabitant_counter',
                     {country: 'a', city: 'a'},
@@ -558,8 +559,8 @@ describe('Basic => ', function() {
                                 if(err) {
                                     return done(err);
                                 }
-                                assert.deepEqual(tAsaved.inhabitant, 0);
-                                assert.deepEqual(tBsaved.inhabitant, 0);
+                                assert.deepEqual(tAsaved.inhabitant, 1);
+                                assert.deepEqual(tBsaved.inhabitant, 1);
                             });
                         });
                     });
