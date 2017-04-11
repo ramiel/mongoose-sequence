@@ -419,7 +419,7 @@ describe('Basic => ', function() {
 
         });
 
-        describe('Reset counter => ', function(){
+        describe.only('Reset counter => ', function(){
 
             before(function() {
                 var ResettableSimpleSchema = new Schema({
@@ -428,9 +428,21 @@ describe('Basic => ', function() {
                 });
                 ResettableSimpleSchema.plugin(AutoIncrement, {id: 'resettablesimpleid', inc_field: 'id'});
                 this.ResettableSimple = mongoose.model('ResettableSimple', ResettableSimpleSchema);
+
+                var ResettableComposedSchema = new Schema({
+                    country: String,
+                    city: String,
+                    inhabitant: Number
+                });
+                ResettableComposedSchema.plugin(AutoIncrement, {
+                    id: 'resettable_inhabitant_counter',
+                    inc_field: 'inhabitant',
+                    reference_fields: ['country', 'city']
+                });
+                this.ResettableComposed = mongoose.model('ResettableComposed', ResettableComposedSchema);
             });
 
-            beforeEach(function(done) {
+            beforeEach('create simple resettable documents',function(done) {
                 var count = 0,
                     documents = [];
 
@@ -440,6 +452,44 @@ describe('Basic => ', function() {
                     function(callback) {
                         count++;
                         var t = new this.ResettableSimple();
+                        documents.push(t);
+                        t.save(callback);
+                    }.bind(this),
+
+                    done
+
+                );
+            });
+
+            beforeEach('create resettable reference document (a)',function(done) {
+                var count = 0,
+                    documents = [];
+
+                async.whilst(
+                    function() { return count < 3; },
+
+                    function(callback) {
+                        count++;
+                        var t = new this.ResettableComposed({country: 'a', city: 'a'});
+                        documents.push(t);
+                        t.save(callback);
+                    }.bind(this),
+
+                    done
+
+                );
+            });
+
+            beforeEach('create resettable reference document (b)',function(done) {
+                var count = 0,
+                    documents = [];
+
+                async.whilst(
+                    function() { return count < 3; },
+
+                    function(callback) {
+                        count++;
+                        var t = new this.ResettableComposed({country: 'b', city: 'b'});
                         documents.push(t);
                         t.save(callback);
                     }.bind(this),
@@ -466,6 +516,53 @@ describe('Basic => ', function() {
                         assert.deepEqual(saved.id, 0);
                     });
                 });
+            });
+
+            it('for a referenced counter, the counter is 0 for any reference', function(done){
+                this.ResettableComposed.counterReset('resettable_inhabitant_counter', function(err) {
+                    if(err) {
+                        return done(err);
+                    }
+                    var tA = new this.ResettableComposed({country: 'a', city: 'a'});
+                    var tB = new this.ResettableComposed({country: 'b', city: 'b'});
+                    tA.save(function(err, tAsaved) {
+                        if(err) {
+                            return done(err);
+                        }
+                        tB.save(function(err, tBsaved){
+                            if(err) {
+                                return done(err);
+                            }
+                            assert.deepEqual(tAsaved.inhabitant, 0);
+                            assert.deepEqual(tBsaved.inhabitant, 0);
+                        });
+                    });
+                });
+            });
+
+            it('for a referenced counter with a specific value, the counter is 0 for that reference', function(done){
+                this.ResettableComposed.counterReset(
+                    'resettable_inhabitant_counter',
+                    {country: 'a', city: 'a'},
+                    function(err) {
+                        if(err) {
+                            return done(err);
+                        }
+                        var tA = new this.ResettableComposed({country: 'a', city: 'a'});
+                        var tB = new this.ResettableComposed({country: 'b', city: 'b'});
+                        tA.save(function(err, tAsaved) {
+                            if(err) {
+                                return done(err);
+                            }
+                            tB.save(function(err, tBsaved){
+                                if(err) {
+                                    return done(err);
+                                }
+                                assert.deepEqual(tAsaved.inhabitant, 0);
+                                assert.deepEqual(tBsaved.inhabitant, 0);
+                            });
+                        });
+                    });
             });
         });
 
