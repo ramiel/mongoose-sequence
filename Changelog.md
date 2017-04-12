@@ -1,3 +1,7 @@
+# 3.2.0
+
+- Add a static method to reset a counter
+
 # 3.1.0
 
  - Refactored code
