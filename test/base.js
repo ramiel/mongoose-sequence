@@ -7,6 +7,8 @@ var chai = require('chai'),
     AutoIncrement = require('../index'),
     sinon = require('sinon');
 
+mongoose.Promise = global.Promise;
+
 describe('Basic => ', function() {
 
     before(function connection(done) {
@@ -241,6 +243,7 @@ describe('Basic => ', function() {
 
             });
 
+
             it('is not incremented on save', function(done) {
                 var t = new this.Manual({});
                 t.save(function(err) {
@@ -342,7 +345,7 @@ describe('Basic => ', function() {
                     assert.throws(function(){
                         UnusedSchema.plugin(AutoIncrement, {inc_field: 'inhabitant', reference_fields: ['country', 'city'], disable_hooks: true});
                     }, Error);
-                    
+
                 });
             });
 
@@ -379,6 +382,191 @@ describe('Basic => ', function() {
 
             });
 
+            describe('Two schema with the samere references', function(){
+
+                before(function createTwoSchemas() {
+                    var RefFirstSchema = new Schema({
+                        country: String,
+                        city: String,
+                        inhabitant: Number
+                    });
+                    RefFirstSchema.plugin(AutoIncrement, {id:'shared_inhabitant_counter', inc_field: 'inhabitant', reference_fields: ['country', 'city']});
+                    this.RefFirst = mongoose.model('RefFirst', RefFirstSchema);
+
+                    var RefSecondSchema = new Schema({
+                        country: String,
+                        city: String,
+                        inhabitant: Number
+                    });
+                    RefSecondSchema.plugin(AutoIncrement, {id:'shared_inhabitant_counter_2', inc_field: 'inhabitant', reference_fields: ['country', 'city']});
+                    this.RefSecond = mongoose.model('RefSecond', RefSecondSchema);
+                });
+
+                it('do not share the same counter', function(done){
+                    var t = new this.RefFirst({country:'France', city:'Paris'});
+                    var t2 = new this.RefSecond({country:'France', city:'Paris'});
+                    t.save(function(err) {
+                        if (err) return done(err);
+                        assert.equal(t.inhabitant, 1);
+                        t2.save(function(err){
+                            if (err) return done(err);
+                            assert.equal(t2.inhabitant, 1);
+                            done();
+                        });
+                    });
+                });
+            });
+
+        });
+
+        describe('Reset counter => ', function(){
+
+            before(function() {
+                var ResettableSimpleSchema = new Schema({
+                    id: Number,
+                    val: String
+                });
+                ResettableSimpleSchema.plugin(AutoIncrement, {id: 'resettable_simple_id', inc_field: 'id'});
+                this.ResettableSimple = mongoose.model('ResettableSimple', ResettableSimpleSchema);
+
+                var ResettableComposedSchema = new Schema({
+                    country: String,
+                    city: String,
+                    inhabitant: Number
+                });
+                ResettableComposedSchema.plugin(AutoIncrement, {
+                    id: 'resettable_inhabitant_counter',
+                    inc_field: 'inhabitant',
+                    reference_fields: ['country', 'city']
+                });
+                this.ResettableComposed = mongoose.model('ResettableComposed', ResettableComposedSchema);
+            });
+
+            beforeEach('create simple resettable documents',function(done) {
+                var count = 0,
+                    documents = [];
+
+                async.whilst(
+                    function() { return count < 5; },
+
+                    function(callback) {
+                        count++;
+                        var t = new this.ResettableSimple();
+                        documents.push(t);
+                        t.save(callback);
+                    }.bind(this),
+
+                    done
+
+                );
+            });
+
+            beforeEach('create resettable reference document (a)',function(done) {
+                var count = 0,
+                    documents = [];
+
+                async.whilst(
+                    function() { return count < 3; },
+
+                    function(callback) {
+                        count++;
+                        var t = new this.ResettableComposed({country: 'a', city: 'a'});
+                        documents.push(t);
+                        t.save(callback);
+                    }.bind(this),
+
+                    done
+
+                );
+            });
+
+            beforeEach('create resettable reference document (b)',function(done) {
+                var count = 0,
+                    documents = [];
+
+                async.whilst(
+                    function() { return count < 3; },
+
+                    function(callback) {
+                        count++;
+                        var t = new this.ResettableComposed({country: 'b', city: 'b'});
+                        documents.push(t);
+                        t.save(callback);
+                    }.bind(this),
+
+                    done
+
+                );
+            });
+
+            it('a model gains a static "counterReset" method', function() {
+                assert.isFunction(this.ResettableSimple.counterReset);
+            });
+
+            it('after calling it, the counter is 1', function(done){
+                this.ResettableSimple.counterReset('resettable_simple_id', function(err) {
+                    if(err) {
+                        return done(err);
+                    }
+                    var t = new this.ResettableSimple();
+                    t.save(function(err, saved) {
+                        if(err) {
+                            return done(err);
+                        }
+                        assert.deepEqual(saved.id, 1);
+                        done();
+                    });
+                }.bind(this));
+            });
+
+            it('for a referenced counter, the counter is 1 for any reference', function(done){
+                this.ResettableComposed.counterReset('resettable_inhabitant_counter', function(err) {
+                    if(err) {
+                        return done(err);
+                    }
+                    var tA = new this.ResettableComposed({country: 'a', city: 'a'});
+                    var tB = new this.ResettableComposed({country: 'b', city: 'b'});
+                    tA.save(function(err, tAsaved) {
+                        if(err) {
+                            return done(err);
+                        }
+                        tB.save(function(err, tBsaved){
+                            if(err) {
+                                return done(err);
+                            }
+                            assert.deepEqual(tAsaved.inhabitant, 1);
+                            assert.deepEqual(tBsaved.inhabitant, 1);
+                            done();
+                        });
+                    });
+                }.bind(this));
+            });
+
+            it('for a referenced counter with a specific value, the counter is 1 for that reference', function(done){
+                this.ResettableComposed.counterReset(
+                    'resettable_inhabitant_counter',
+                    {country: 'a', city: 'a'},
+                    function(err) {
+                        if(err) {
+                            return done(err);
+                        }
+                        var tA = new this.ResettableComposed({country: 'a', city: 'a'});
+                        var tB = new this.ResettableComposed({country: 'b', city: 'b'});
+                        tA.save(function(err, tAsaved) {
+                            if(err) {
+                                return done(err);
+                            }
+                            tB.save(function(err, tBsaved){
+                                if(err) {
+                                    return done(err);
+                                }
+                                assert.deepEqual(tAsaved.inhabitant, 1);
+                                assert.notEqual(tBsaved.inhabitant, 1);
+                                done();
+                            });
+                        });
+                    }.bind(this));
+            });
         });
 
         describe('Error on hook', function(){
@@ -427,7 +615,7 @@ describe('Basic => ', function() {
                     });
                 });
             });
-        }); 
+        });
 
     });
 });

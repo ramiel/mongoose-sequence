@@ -157,6 +157,31 @@ user.setNext('inhabitant_seq', function(err, user){
 
 Of course this example is a bit forced and this is for sure not the perfect use case. The field country and city have to be present and must not change during the life of the document because no automatic hook are set on the change of those values. But there are situations when you want a similar behavior.
 
+### Reset a counter
+
+It's possible to programmatically reset a counter through the Model static method `counterReset(id, reference, callback)`. The method take those parameters:
+
+- **id**: the counter to reset. It's mandatory
+- **reference**: Let you reset only a specific reference of the counter, if the counter has referenced fields. Optional. By default it reset all the counters for the `id`
+- **callback**: A callback which receive an error in case of any. Mandatory
+
+Some examples
+
+
+```js
+Model.counterReset('counter_id', function(err) {
+    // Now the counter is 0
+});
+
+Model.counterReset('inhabitants_id', function(err) {
+    // If this is a referenced fields, now all the counter are 0
+});
+
+Model.counterReset('inhabitants_id',{country: 'France', city: 'Paris'}, function(err) {
+    // If this is a referenced fields, only the counter for Paris/France is 0
+});
+```
+
 ### Options
 
 This plugin accept a series of options.
