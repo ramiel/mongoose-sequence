@@ -1,3 +1,7 @@
+# 3.2.1
+
+- Adds donate button
+
 # 3.2.0
 
 - Add a static method to reset a counter
