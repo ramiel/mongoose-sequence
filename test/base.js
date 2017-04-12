@@ -419,7 +419,7 @@ describe('Basic => ', function() {
 
         });
 
-        describe.only('Reset counter => ', function(){
+        describe('Reset counter => ', function(){
 
             before(function() {
                 var ResettableSimpleSchema = new Schema({
@@ -536,9 +536,10 @@ describe('Basic => ', function() {
                             }
                             assert.deepEqual(tAsaved.inhabitant, 1);
                             assert.deepEqual(tBsaved.inhabitant, 1);
+                            done();
                         });
                     });
-                });
+                }.bind(this));
             });
 
             it('for a referenced counter with a specific value, the counter is 1 for that reference', function(done){
@@ -560,10 +561,11 @@ describe('Basic => ', function() {
                                     return done(err);
                                 }
                                 assert.deepEqual(tAsaved.inhabitant, 1);
-                                assert.deepEqual(tBsaved.inhabitant, 1);
+                                assert.notEqual(tBsaved.inhabitant, 1);
+                                done();
                             });
                         });
-                    });
+                    }.bind(this));
             });
         });
 
