@@ -15,13 +15,27 @@ This increment can be:
 
 Multiple counter can be set for a collection.
 
+## Migrating from version 3 to version 4
+
+Version 3 is now deprecated. In order to migrate to the new version the only change you need to do is to pass `mongoose` to the required module as explained in [requiring](#requiring) section.
+
 ## Requisites
 
 This plugin need mongoose version 4.0.0 or above
 
+
 ## Installation
 
 `npm install --save mongoose-sequence`
+
+## Requiring
+
+```js
+const mongoose = require('mongoose')
+const AutoIncrement = require('mongoose-sequence')(mongoose);
+```
+
+**Note** You must pass your mongoose instance to the plugin for it to work
 
 ## Global sequences
 
@@ -45,7 +59,7 @@ UserSchema.plugin(AutoIncrement, {inc_field: 'id'});
 
 After requiring the plugin
 
-`var AutoIncrement = require('mongoose-sequence');`
+
 
 Every time a new user is created, the `id` field will have an incremental number. The operation is atomic and is based on [this](http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/) specification.
 A commodity collection named `counters` is created for you. You can override the name of this collection but we will see this later with the `options`.
