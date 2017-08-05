@@ -1,3 +1,9 @@
+# 4.0.0
+
+- Fix: Do not hang on save in production anymore
+- Add `yarn.lock`
+- Add package-lock.json
+
 # 3.2.1
 
 - Adds donate button

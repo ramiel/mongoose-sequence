@@ -4,7 +4,7 @@ var chai = require('chai'),
     async = require('async'),
     mongoose = require('mongoose'),
     Schema = mongoose.Schema,
-    AutoIncrement = require('../index'),
+    AutoIncrement = require('../index')(mongoose),
     sinon = require('sinon');
 
 mongoose.Promise = global.Promise;
@@ -14,7 +14,7 @@ describe('Basic => ', function() {
     before(function connection(done) {
         mongoose.connection.on('open', done);
         mongoose.connection.on('error', done);
-        mongoose.connect('mongodb://127.0.0.1/mongoose-sequence-testing');
+        mongoose.connect('mongodb://127.0.0.1/mongoose-sequence-testing', {useMongoClient: true});
     });
 
     after(function destroyingAll(done) {
