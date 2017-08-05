@@ -1,4 +1,4 @@
-# Next
+# 4.0.0
 
 - Fix: Do not hang on save in production anymore
 - Add `yarn.lock`
