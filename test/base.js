@@ -156,6 +156,18 @@ describe('Basic => ', function() {
                 );
             });
 
+            it('can create multiple document in parallel when the sequence is on _id', function(done) {
+                async.parallel(
+                    [
+                        function(callback){ this.MainId.create({}, callback); }.bind(this),
+                        function(callback){ this.MainId.create({}, callback); }.bind(this),
+                        function(callback){ this.MainId.create({}, callback); }.bind(this)
+                    ],
+                    done
+                );
+            });
+
+
             it('updating a document do not increment the counter', function(done) {
                 this.SimpleField.findOne({}, function(err, entity) {
                     var id = entity.id;
@@ -187,7 +199,7 @@ describe('Basic => ', function() {
                         var ids = documents.map(function(d) {return d._id;});
 
                         try {
-                            assert.deepEqual(ids, [1, 2, 3, 4, 5]);
+                            assert.deepEqual([4, 5, 6, 7, 8], ids);
                         }catch (e) {
                             return done(e);
                         }
