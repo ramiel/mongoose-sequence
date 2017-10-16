@@ -1,6 +1,6 @@
 {
   "name": "mongoose-sequence",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Very generic autoincrement plugin for mongoose",
   "main": "index.js",
   "scripts": {
@@ -23,16 +23,17 @@
   },
   "license": "GPL-2.0",
   "dependencies": {
+    "async": "^2.5.0",
     "lodash": "^4.6.1"
   },
   "peerDependencies": {
     "mongoose": ">=4"
   },
   "devDependencies": {
-    "async": "^1.4.2",
     "chai": "^3.3.0",
     "coveralls": "^2.11.8",
     "grunt": "^0.4.5",
+    "grunt-cli": "^1.2.0",
     "grunt-eslint": "^18.0.0",
     "grunt-mocha-istanbul": "^3.0.1",
     "istanbul": "^0.4.2",
