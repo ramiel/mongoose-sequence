@@ -303,39 +303,39 @@ describe('Basic => ', function() {
 
         });
 
-        describe('a counter which referes others fields => ', function() {
+        describe('a counter which referes others fields => ', function () {
 
-            before(function() {
+            before(function () {
                 var ComposedSchema = new Schema({
-                    country: String,
+                    country: Schema.Types.ObjectId,
                     city: String,
                     inhabitant: Number
                 });
-                ComposedSchema.plugin(AutoIncrement, {id: 'inhabitant_counter', inc_field: 'inhabitant', reference_fields: ['country', 'city']});
+                ComposedSchema.plugin(AutoIncrement, { id: 'inhabitant_counter', inc_field: 'inhabitant', reference_fields: ['city', 'country'] });
                 this.Composed = mongoose.model('Composed', ComposedSchema);
             });
 
-            it('increment on save', function(done) {
-                var t = new this.Composed({country:'France', city:'Paris'});
-                t.save(function(err) {
+            it('increment on save', function (done) {
+                var t = new this.Composed({ country: mongoose.Types.ObjectId('59c380f51207391238e7f3f2'), city: 'Paris' });
+                t.save(function (err) {
                     if (err) return done(err);
                     assert.deepEqual(t.inhabitant, 1);
                     done();
                 });
             });
 
-            it('saving a document with the same reference increment the counter', function(done) {
-                var t = new this.Composed({country:'France', city:'Paris'});
-                t.save(function(err) {
+            it('saving a document with the same reference increment the counter', function (done) {
+                var t = new this.Composed({ country: mongoose.Types.ObjectId('59c380f51207391238e7f3f2'), city: 'Paris' });
+                t.save(function (err) {
                     if (err) return done(err);
                     assert.deepEqual(t.inhabitant, 2);
                     done();
                 });
             });
 
-            it('saving with a different reference do not increment the counter', function(done) {
-                var t = new this.Composed({country:'USA', city:'New York'});
-                t.save(function(err) {
+            it('saving with a different reference do not increment the counter', function (done) {
+                var t = new this.Composed({ country: mongoose.Types.ObjectId('59c380f51207391238e7f3f2'), city: 'Carcasonne' });
+                t.save(function (err) {
                     if (err) return done(err);
                     assert.deepEqual(t.inhabitant, 1);
                     done();
