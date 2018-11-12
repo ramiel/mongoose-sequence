@@ -78,7 +78,7 @@ In this case you don't have to specify `inc_field` because the default value is 
 
 ## Not automatic sequences 
 
-Let say our user model has a `rank` field which cgives the rank of the user in a tournament. So it saves the arrival order of a user to the end of our amazing game. This field is of course a sequence but has to be incremented everytime an event occours. Because we have concurrent access to database we want to be sure that the increment of this counter happens safely.
+Let say our user model has a `rank` field which gives the rank of the user in a tournament. So it saves the arrival order of a user to the end of our amazing game. This field is of course a sequence but has to be incremented everytime an event occours. Because we have concurrent access to database we want to be sure that the increment of this counter happens safely.
 Let's start modify our schema
 
 ```js
