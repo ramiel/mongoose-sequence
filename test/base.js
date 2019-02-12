@@ -27,6 +27,13 @@ describe('Basic => ', function() {
     });
 
 
+    describe('General', function(){
+        it('must be instantiated passing mongoose', function(){
+            const AI = require('../index');
+            assert.throw(AI, Error);
+        });
+    });
+
 
     describe('Global sequences => ', function() {
 
