@@ -39,7 +39,7 @@
     "istanbul": "^0.4.2",
     "load-grunt-tasks": "^3.4.1",
     "mocha": "^5.2.0",
-    "mongoose": "^4.1.11",
+    "mongoose": "^5.4.11",
     "sinon": "^1.17.5"
   },
   "config": {

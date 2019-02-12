@@ -14,7 +14,9 @@ describe('Basic => ', function() {
     before(function connection(done) {
         mongoose.connection.on('open', done);
         mongoose.connection.on('error', done);
-        mongoose.connect('mongodb://127.0.0.1/mongoose-sequence-testing', {useMongoClient: true});
+        mongoose.set('useCreateIndex', true);
+        mongoose.set('useFindAndModify', false);
+        mongoose.connect('mongodb://127.0.0.1/mongoose-sequence-testing', { useNewUrlParser: true });
     });
 
     after(function destroyingAll(done) {
