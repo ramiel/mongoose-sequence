@@ -9,7 +9,7 @@
     "rules": {
         "indent": [
             1,
-            4
+            2
         ],
         "linebreak-style": [
             2,
@@ -36,6 +36,7 @@
         "valid-jsdoc": [1,{
             "requireReturn": false,
             "requireReturnDescription": false
-        }]
+        }],
+        "keyword-spacing": [1, {"before": true, "after": true}]
     }
 }
