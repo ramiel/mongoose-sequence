@@ -15,9 +15,15 @@ This increment can be:
 
 Multiple counters can be set for a collection.
 
-## Migrating from version 3 to version 4
+## Migrating 
+
+### From version 3 to version 4
 
 Version 3 is now deprecated. In order to migrate to the new version the only change you need to do is to pass `mongoose` to the required module as explained in the [requiring](#requiring) section.
+
+### From version 4 to version 5
+
+An important fix about scoped counters is not backward compatible. You cannot use version 5 with scoped counters already present on your DB.
 
 ## Requisites
 
