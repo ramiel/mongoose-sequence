@@ -590,7 +590,7 @@ describe('Basic => ', function() {
       });
     });
 
-    describe('Error on hook', function(){
+    describe('Error on hook => ', function(){
       before(function(done) {
         var SimpleFieldSchema = new Schema({
           id: Number,
@@ -638,5 +638,43 @@ describe('Basic => ', function() {
       });
     });
 
+    describe('Parallel/Sequential hook behavior => ', function(){
+
+      describe('hook is registered as parallel => ', function(){
+
+        it('does not pass updated increment value to next hook', function(done){
+          var ParallelHooksSchema = new Schema({
+            parallel_id: Number,
+            val: String
+          });
+  
+          ParallelHooksSchema.plugin(AutoIncrement, {inc_field: 'parallel_id', parallel_hooks: true});
+          ParallelHooksSchema.pre('save', function(next) {
+            assert.isUndefined(this.parallel_id);
+            next();
+          });
+          var ParallelHooks = mongoose.model('ParallelHooks', ParallelHooksSchema);
+          ParallelHooks.create({val: 't1'}, done);
+        });
+      });
+
+      describe('hook is registered as sequential => ', function(){
+
+        it('passes updated increment value to next hook', function(done){
+          var SequentialHooksSchema = new Schema({
+            sequential_id: Number,
+            val: String
+          });
+  
+          SequentialHooksSchema.plugin(AutoIncrement, {inc_field: 'sequential_id', parallel_hooks: false});
+          SequentialHooksSchema.pre('save', function(next) {
+            assert.isDefined(this.sequential_id);
+            next();
+          });
+          var SequentialHooks = mongoose.model('SequentialHooks', SequentialHooksSchema);
+          SequentialHooks.create({val: 't1'}, done);
+        });
+      });
+    });
   });
 });
