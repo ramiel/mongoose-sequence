@@ -668,7 +668,7 @@ describe('Basic => ', function() {
 
       it('creates documents starting at custom start sequence', function(done) {
         var count = 0,
-            documents = [];
+          documents = [];
 
         async.whilst(
             function() { return count < 5; },
@@ -697,7 +697,7 @@ describe('Basic => ', function() {
 
       it ('increments field based on set increment amount', function(done) {
         var count = 0,
-            documents = [];
+          documents = [];
 
         async.whilst(
             function() { return count < 5; },
@@ -727,7 +727,7 @@ describe('Basic => ', function() {
 
       it ('creates documents with custom start sequence and increment amount', function(done) {
         var count = 0,
-            documents = [];
+          documents = [];
 
         async.whilst(
             function() { return count < 5; },
