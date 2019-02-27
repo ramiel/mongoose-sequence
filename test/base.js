@@ -219,7 +219,7 @@ describe('Basic => ', function() {
                 );
       });
 
-      describe('with a doulbe instantiation => ', function(){
+      describe('with a double instantiation => ', function(){
 
         before(function(done){
           var DoubleFieldsSchema = new Schema({
@@ -638,5 +638,141 @@ describe('Basic => ', function() {
       });
     });
 
+    describe('Manually set start sequence and increment amounts => ', function() {
+
+      before(function() {
+        var ManuallySetSchema = new Schema({
+          seqId: Number,
+          name: String
+        });
+
+        ManuallySetSchema.plugin(AutoIncrement, { inc_field: 'seqId', start_seq: 1000 });
+        this.ManuallySet = mongoose.model('ManuallySet', ManuallySetSchema);
+
+        var IncrementByTensScema = new Schema({
+          countByTens: Number,
+          val: String
+        });
+
+        IncrementByTensScema.plugin(AutoIncrement, { inc_field: 'countByTens', inc_amount: 10 });
+        this.IncrementByTens = mongoose.model('IncrementByTens', IncrementByTensScema);
+
+        var CustomSeqSchema = new Schema({
+          counter: Number,
+          val: String
+        });
+
+        CustomSeqSchema.plugin(AutoIncrement, { inc_field: 'counter', start_seq: 5000, inc_amount: 100 });
+        this.CustomSeq = mongoose.model('CustomSeq', CustomSeqSchema);
+      });
+
+      it('creates documents starting at custom start sequence', function(done) {
+        var count = 0,
+            documents = [];
+
+        async.whilst(
+            function() { return count < 5; },
+            function(callback) {
+              count++;
+              var t = new this.ManuallySet();
+              documents.push(t);
+              t.save(callback);
+            }.bind(this),
+            function(err) {
+              if (err)
+                return done(err);
+
+              var ids = documents.map(function(d) { return d.seqId; });
+
+              try {
+                assert.sameDeepMembers(ids, [1000, 1001, 1002, 1003, 1004]);
+              } catch (e) {
+                return done(e);
+              }
+
+              return done();
+            }
+        );
+      });
+
+      it ('increments field based on set increment amount', function(done) {
+        var count = 0,
+            documents = [];
+
+        async.whilst(
+            function() { return count < 5; },
+            function(callback) {
+              count++;
+              var t = new this.IncrementByTens();
+              documents.push(t);
+              t.save(callback);
+            }.bind(this),
+            function(err) {
+              if (err)
+                return done(err);
+
+              var ids = documents.map(function(d) { return d.countByTens; });
+
+              try {
+                assert.sameDeepMembers(ids, [1, 11, 21, 31, 41]);
+              } catch (e) {
+                return done(e);
+              }
+
+              return done();
+            }
+        );
+      });
+
+
+      it ('creates documents with custom start sequence and increment amount', function(done) {
+        var count = 0,
+            documents = [];
+
+        async.whilst(
+            function() { return count < 5; },
+            function(callback) {
+              count++;
+              var t = new this.CustomSeq();
+              documents.push(t);
+              t.save(callback);
+            }.bind(this),
+            function(err) {
+              if (err)
+                return done(err);
+
+              var ids = documents.map(function(d) { return d.counter; });
+
+              try {
+                assert.sameDeepMembers(ids, [5000, 5100, 5200, 5300, 5400]);
+              } catch (e) {
+                return done(e);
+              }
+
+              return done();
+            }
+        );
+      });
+
+      it('is not possible to set the start sequence equal to 0', function(){
+        var UnusedSchema = new Schema({
+          id: Number,
+          val: String
+        });
+        assert.throws(function(){
+          UnusedSchema.plugin(AutoIncrement, {inc_field: 'id', start_seq: 0});
+        }, Error);
+      });
+
+      it('is not possible to set an increment amount equal to 0', function(){
+        var UnusedSchema = new Schema({
+          id: Number,
+          val: String
+        });
+        assert.throws(function(){
+          UnusedSchema.plugin(AutoIncrement, {inc_field: 'id', inc_amount: 0});
+        }, Error);
+      });
+    });
   });
 });

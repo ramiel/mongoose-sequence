@@ -203,6 +203,35 @@ Model.counterReset('inhabitants_id',{country: 'France', city: 'Paris'}, function
 });
 ```
 
+### Custom Start Sequence & Increment Amount
+
+In some cases, you may want to start an auto-incrementing field at a number other than 1, or even increment by a number other than 1. You can do this by specifying the `start_seq` and `inc_amount` options. By default these are both set to 1, but either can be changed.
+
+For example, you may want to start your `userId` field at 1000 rather than 1. To do this, simply specify the `start_seq`.
+
+```js
+UserSchema = mongoose.Schema({
+    userId: Number,
+    firstName: String,
+    lastName: String,
+    age: Number
+});
+
+userSchema.plugin(AutoIncrement, {inc_field: 'userId', start_seq: 1000 });
+```
+
+Maybe you also want to increment the user id by 5 each time:
+
+```js
+userSchema.plugin(AutoIncrement, {inc_field: 'userId', start_seq: 1000, inc_amount: 5 });
+```
+
+Or you want to increment by 10, while starting at the default:
+
+```js
+userSchema.plugin(AutoIncrement, {inc_field: 'userId', inc_amount: 10 });
+```
+
 ### Options
 
 This plugin accepts a series of options.
@@ -212,6 +241,8 @@ This plugin accepts a series of options.
 - **reference_fields**: The field to reference for a scoped counter. Optional
 - **disable_hooks**: If true, the counter will not be incremented on saving a new document. Default to `false`
 - **collection_name**: By default the collection name to mantain the status of the counters is `counters`. You can override it using this option
+- **start_seq**: The number to start incrementing on. Optional, defaults to `1` if not specified.
+- **inc_amount**: The number to increment by. Optional, defaults to `1` if not specified.
 
 ## Notes
 
