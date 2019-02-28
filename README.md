@@ -212,6 +212,7 @@ This plugin accepts a series of options.
 - **reference_fields**: The field to reference for a scoped counter. Optional
 - **disable_hooks**: If true, the counter will not be incremented on saving a new document. Default to `false`
 - **collection_name**: By default the collection name to mantain the status of the counters is `counters`. You can override it using this option
+- **parallel_hooks**: If true, hooks will be registered as parallel.  Default to `false`
 
 ## Notes
 
