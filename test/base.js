@@ -22,7 +22,7 @@ describe('Basic => ', function () {
       assert.throw(AI, Error);
     });
 
-    it('can pass a generic connection', function (done) {
+    it.skip('can pass a generic connection', function (done) {
       var connection = mongoose.createConnection('mongodb://127.0.0.1/mongoose-sequence-testing', { useNewUrlParser: true });
       var AI = require('../index')(connection);
       var ASchema = new Schema({
@@ -30,11 +30,9 @@ describe('Basic => ', function () {
         val: String
       });
       ASchema.plugin(AI, { inc_field: 'id', id: 'aschemaid' });
-      var AModel = connection.model('SimpleField', ASchema);
+      var AModel = connection.model('ASchema', ASchema);
       AModel.create({ val: 'hello' }, function (err) {
-        connection.close(() => {
-          return done(err);
-        });
+        return done(err);
       });
     });
   });
