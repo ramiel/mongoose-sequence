@@ -9,6 +9,8 @@ var chai = require('chai'),
 
 mongoose.Promise = global.Promise;
 
+var DB_URL = process.env.MONGODB_TEST_URL || 'mongodb://127.0.0.1/mongoose-sequence-testing';
+
 describe('Basic => ', function () {
 
   before(() => {
@@ -23,7 +25,7 @@ describe('Basic => ', function () {
     });
 
     it('can pass a generic connection', function (done) {
-      var connection = mongoose.createConnection('mongodb://127.0.0.1/mongoose-sequence-testing', { useNewUrlParser: true });
+      var connection = mongoose.createConnection(DB_URL, { useNewUrlParser: true });
       var AI = require('../index')(connection);
       var ASchema = new Schema({
         id: Number,
@@ -42,7 +44,7 @@ describe('Basic => ', function () {
     before(function connection(done) {
       mongoose.connection.on('open', done);
       mongoose.connection.on('error', done);
-      mongoose.connect('mongodb://127.0.0.1/mongoose-sequence-testing', { useNewUrlParser: true });
+      mongoose.connect(DB_URL, { useNewUrlParser: true });
     });
 
     after(function destroyingAll(done) {
