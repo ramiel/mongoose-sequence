@@ -22,7 +22,7 @@ describe('Basic => ', function () {
       assert.throw(AI, Error);
     });
 
-    it.skip('can pass a generic connection', function (done) {
+    it('can pass a generic connection', function (done) {
       var connection = mongoose.createConnection('mongodb://127.0.0.1/mongoose-sequence-testing', { useNewUrlParser: true });
       var AI = require('../index')(connection);
       var ASchema = new Schema({
