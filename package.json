@@ -31,16 +31,10 @@
   },
   "devDependencies": {
     "chai": "^3.3.0",
-    "coveralls": "^3.0.2",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.17.3",
-    "grunt": "^1.0.4",
-    "grunt-cli": "^1.2.0",
-    "grunt-eslint": "^18.0.0",
-    "grunt-mocha-istanbul": "^3.0.1",
     "istanbul": "^0.4.2",
-    "load-grunt-tasks": "^3.4.1",
     "mocha": "^5.2.0",
     "mongoose": "^5.4.11",
     "sinon": "^1.17.5"
