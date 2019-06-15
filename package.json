@@ -4,8 +4,9 @@
   "description": "Very generic autoincrement plugin for mongoose",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
-    "lint": "eslint ."
+    "test-only": "mocha",
+    "lint": "eslint .",
+    "test": "npm run lint && npm run test-only"
   },
   "keywords": [
     "mongoose",
