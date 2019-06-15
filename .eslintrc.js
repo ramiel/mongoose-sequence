@@ -14,6 +14,7 @@ module.exports = {
   },
   rules: {
     'no-underscore-dangle': 0,
-    'func-names': 0
+    'func-names': 0,
+    'no-plusplus': ["error", { "allowForLoopAfterthoughts": true }]
   },
 };
