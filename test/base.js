@@ -4,12 +4,12 @@ const chai = require('chai');
 const { assert } = chai;
 const async = require('async');
 const mongoose = require('mongoose');
+const sinon = require('sinon');
 
 const { Schema } = mongoose;
 const AutoIncrementFactory = require('../index');
 
 const AutoIncrement = AutoIncrementFactory(mongoose);
-const sinon = require('sinon');
 
 mongoose.Promise = global.Promise;
 
@@ -51,7 +51,7 @@ describe('Basic => ', () => {
     after((done) => {
       mongoose.connection.db.dropDatabase((err) => {
         if (err) return done(err);
-        mongoose.disconnect(done);
+        return mongoose.disconnect(done);
       });
     });
 
@@ -103,7 +103,7 @@ describe('Basic => ', () => {
           () => count < 5,
 
           (callback) => {
-            count++;
+            count += 1;
             const t = new this.SimpleField();
             documents.push(t);
             t.save(callback);
@@ -176,7 +176,7 @@ describe('Basic => ', () => {
               return done(e);
             }
 
-            done();
+            return done();
           },
 
         );
@@ -197,11 +197,11 @@ describe('Basic => ', () => {
       it('updating a document do not increment the counter', function (done) {
         this.SimpleField.findOne({}, (err, entity) => {
           const { id } = entity;
-          entity.val = 'something';
-          entity.save((err) => {
-            if (err) return done(err);
+          entity.val = 'something'; // eslint-disable-line
+          entity.save((e) => {
+            if (e) return done(e);
             assert.deepEqual(entity.id, id);
-            done();
+            return done();
           });
         });
       });
@@ -214,7 +214,7 @@ describe('Basic => ', () => {
           () => count < 5,
 
           (callback) => {
-            count++;
+            count += 1;
             const t = new this.MainId();
             documents.push(t);
             t.save(callback);
@@ -230,7 +230,7 @@ describe('Basic => ', () => {
               return done(e);
             }
 
-            done();
+            return done();
           },
 
         );
@@ -254,12 +254,15 @@ describe('Basic => ', () => {
 
         it('incrementes the correct counter', function (done) {
           this.DoubleFields.findOne({ name: 'me' }, (err, double) => {
-            if (err) return done(err);
-            double.setNext('like_counter', (err, double) => {
-              if (err) return done(err);
-              assert.isUndefined(double.score);
-              assert.deepEqual(double.like, 1);
-              done();
+            if (err) {
+              done(err);
+              return;
+            }
+            double.setNext('like_counter', (e, doubleInstance) => {
+              if (e) return done(e);
+              assert.isUndefined(doubleInstance.score);
+              assert.deepEqual(doubleInstance.like, 1);
+              return done();
             });
           });
         });
@@ -283,17 +286,17 @@ describe('Basic => ', () => {
         t.save((err) => {
           if (err) return done(err);
           assert.notEqual(t.membercount, 1);
-          done();
+          return done();
         });
       });
 
       it('is incremented manually', function (done) {
         this.Manual.findOne({ name: 't1' }, (err, entity) => {
-          if (err) return done(err);
-          entity.setNext('membercount', (err, entity) => {
-            if (err) return done(err);
-            assert.deepEqual(entity.membercount, 1);
-            done();
+          if (err) { done(err); return; }
+          entity.setNext('membercount', (e, entityInstance) => {
+            if (e) return done(e);
+            assert.deepEqual(entityInstance.membercount, 1);
+            return done();
           });
         });
       });
@@ -301,12 +304,12 @@ describe('Basic => ', () => {
       it('is incremented manually and the value is already saved', function (done) {
         const { Manual } = this;
         Manual.findOne({ name: 't2' }, (err, entity) => {
-          if (err) return done(err);
-          entity.setNext('membercount', (err, entity) => {
-            if (err) return done(err);
-            Manual.findOne({ name: 't2' }, (err, entity) => {
-              if (err) return done(err);
-              assert.deepEqual(entity.membercount, 2);
+          if (err) { done(err); return; }
+          entity.setNext('membercount', (e/* , entityInstance */) => {
+            if (e) { done(e); return; }
+            Manual.findOne({ name: 't2' }, (e1, entityInstance1) => {
+              if (e1) { done(e1); return; }
+              assert.deepEqual(entityInstance1.membercount, 2);
               done();
             });
           });
@@ -315,9 +318,9 @@ describe('Basic => ', () => {
 
       it('is not incremented manually with a wrong sequence id', function (done) {
         this.Manual.findOne({ name: 't1' }, (err, entity) => {
-          if (err) return done(err);
-          entity.setNext('membercountlol', (err, entity) => {
-            assert.isNotNull(err);
+          if (err) { done(err); return; }
+          entity.setNext('membercountlol', (e/* , entity */) => {
+            assert.isNotNull(e);
             done();
           });
         });
@@ -338,7 +341,7 @@ describe('Basic => ', () => {
       it('increment on save', function (done) {
         const t = new this.Composed({ country: mongoose.Types.ObjectId('59c380f51207391238e7f3f2'), city: 'Paris' });
         t.save((err) => {
-          if (err) return done(err);
+          if (err) { done(err); return; }
           assert.deepEqual(t.inhabitant, 1);
           done();
         });
@@ -347,7 +350,7 @@ describe('Basic => ', () => {
       it('saving a document with the same reference increment the counter', function (done) {
         const t = new this.Composed({ country: mongoose.Types.ObjectId('59c380f51207391238e7f3f2'), city: 'Paris' });
         t.save((err) => {
-          if (err) return done(err);
+          if (err) { done(err); return; }
           assert.deepEqual(t.inhabitant, 2);
           done();
         });
@@ -356,7 +359,7 @@ describe('Basic => ', () => {
       it('saving with a different reference do not increment the counter', function (done) {
         const t = new this.Composed({ country: mongoose.Types.ObjectId('59c380f51207391238e7f3f2'), city: 'Carcasonne' });
         t.save((err) => {
-          if (err) return done(err);
+          if (err) { done(err); return; }
           assert.deepEqual(t.inhabitant, 1);
           done();
         });
@@ -393,7 +396,7 @@ describe('Basic => ', () => {
         it('with a manual field do not increment on save', function (done) {
           const t = new this.ComposedManual({ country: 'France', city: 'Paris' });
           t.save((err) => {
-            if (err) return done(err);
+            if (err) { done(err); return; }
             assert.notEqual(t.inhabitant, 1);
             done();
           });
@@ -401,9 +404,9 @@ describe('Basic => ', () => {
 
         it('with a manual field increment manually', function (done) {
           this.ComposedManual.findOne({}, (err, entity) => {
-            entity.setNext('inhabitant_counter_manual', (err, entity) => {
-              if (err) return done(err);
-              assert.deepEqual(entity.inhabitant, 1);
+            entity.setNext('inhabitant_counter_manual', (e, entitySaved) => {
+              if (e) { done(e); return; }
+              assert.deepEqual(entitySaved.inhabitant, 1);
               done();
             });
           });
@@ -433,10 +436,10 @@ describe('Basic => ', () => {
           const t = new this.RefFirst({ country: 'France', city: 'Paris' });
           const t2 = new this.RefSecond({ country: 'France', city: 'Paris' });
           t.save((err) => {
-            if (err) return done(err);
+            if (err) { done(err); return; }
             assert.equal(t.inhabitant, 1);
-            t2.save((err) => {
-              if (err) return done(err);
+            t2.save((e) => {
+              if (e) { done(e); return; }
               assert.equal(t2.inhabitant, 1);
               done();
             });
@@ -475,7 +478,7 @@ describe('Basic => ', () => {
           () => count < 5,
 
           (callback) => {
-            count++;
+            count += 1;
             const t = new this.ResettableSimple();
             documents.push(t);
             t.save(callback);
@@ -494,7 +497,7 @@ describe('Basic => ', () => {
           () => count < 3,
 
           (callback) => {
-            count++;
+            count += 1;
             const t = new this.ResettableComposed({ country: 'a', city: 'a' });
             documents.push(t);
             t.save(callback);
@@ -513,7 +516,7 @@ describe('Basic => ', () => {
           () => count < 3,
 
           (callback) => {
-            count++;
+            count += 1;
             const t = new this.ResettableComposed({ country: 'b', city: 'b' });
             documents.push(t);
             t.save(callback);
@@ -531,12 +534,14 @@ describe('Basic => ', () => {
       it('after calling it, the counter is 1', function (done) {
         this.ResettableSimple.counterReset('resettable_simple_id', (err) => {
           if (err) {
-            return done(err);
+            done(err);
+            return;
           }
           const t = new this.ResettableSimple();
-          t.save((err, saved) => {
-            if (err) {
-              return done(err);
+          t.save((e, saved) => {
+            if (e) {
+              done(e);
+              return;
             }
             assert.deepEqual(saved.id, 1);
             done();
@@ -547,17 +552,20 @@ describe('Basic => ', () => {
       it('for a referenced counter, the counter is 1 for any reference', function (done) {
         this.ResettableComposed.counterReset('resettable_inhabitant_counter', (err) => {
           if (err) {
-            return done(err);
+            done(err);
+            return;
           }
           const tA = new this.ResettableComposed({ country: 'a', city: 'a' });
           const tB = new this.ResettableComposed({ country: 'b', city: 'b' });
-          tA.save((err, tAsaved) => {
-            if (err) {
-              return done(err);
+          tA.save((e, tAsaved) => {
+            if (e) {
+              done(e);
+              return;
             }
-            tB.save((err, tBsaved) => {
-              if (err) {
-                return done(err);
+            tB.save((errB, tBsaved) => {
+              if (errB) {
+                done(errB);
+                return;
               }
               assert.deepEqual(tAsaved.inhabitant, 1);
               assert.deepEqual(tBsaved.inhabitant, 1);
@@ -573,17 +581,20 @@ describe('Basic => ', () => {
           { country: 'a', city: 'a' },
           (err) => {
             if (err) {
-              return done(err);
+              done(err);
+              return;
             }
             const tA = new this.ResettableComposed({ country: 'a', city: 'a' });
             const tB = new this.ResettableComposed({ country: 'b', city: 'b' });
-            tA.save((err, tAsaved) => {
-              if (err) {
-                return done(err);
+            tA.save((e, tAsaved) => {
+              if (e) {
+                done(e);
+                return;
               }
-              tB.save((err, tBsaved) => {
-                if (err) {
-                  return done(err);
+              tB.save((errB, tBsaved) => {
+                if (errB) {
+                  done(errB);
+                  return;
                 }
                 assert.deepEqual(tAsaved.inhabitant, 1);
                 assert.notEqual(tBsaved.inhabitant, 1);
@@ -633,10 +644,10 @@ describe('Basic => ', () => {
 
       it('do not save the document after a manual incrementation if an error happens in the plugin', function (done) {
         this.Manual.findOne({ name: 't1' }, (err, entity) => {
-          if (err) return done(err);
-          entity.setNext('errored_manual_counter', (err, entity) => {
-            assert.isOk(err);
-            assert.instanceOf(err, Error);
+          if (err) { done(err); return; }
+          entity.setNext('errored_manual_counter', (e/* , saved */) => {
+            assert.isOk(e);
+            assert.instanceOf(e, Error);
             done();
           });
         });
