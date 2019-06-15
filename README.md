@@ -178,6 +178,58 @@ user.setNext('inhabitant_seq', function(err, user){
 
 Of course this example is a bit forced and this is for sure not the perfect use case. The fields `country` and `city` have to be present and must not change during the life of the document because no automatic hooks are set on the change of those values. But there are situations when you want a similar behavior.
 
+### Shared counters
+
+Let say we want to share counter between User and Person document.  
+The schema is like this:
+
+```js
+UserSchema = mongoose.Schema({
+    name: String,
+    country: String,
+    city: String,
+    inhabitant_number: Number
+});
+
+PersonSchema = mongoose.Schema({
+    name: String,
+    country: String,
+    city: String,
+    inhabitant_number: Number
+});
+```
+
+Every time a new User or Person is added, we want the inhabitant_number to be incremented and to be shared between the two collection.  We do so by setting duplicate and super field. 
+
+```js
+UserSchema.plugin(AutoIncrement, {id: 'inhabitant_seq', inc_field: 'inhabitant_number', reference_fields: ['country'] , duplicate: true, super: true});
+
+PersonSchema.plugin(AutoIncrement, {id: 'inhabitant_seq', inc_field: 'inhabitant_number', reference_fields: ['country'] , duplicate: true, super: false});
+```
+
+Notice that we have to set super to only one of the Schema, and duplicate to all the schemas for we want a shared counter.
+
+Now save a new user and a person:
+```js
+var user = new User({
+    name: 'Patrice',
+    country: 'France',
+    city: 'Paris'
+});
+user.save();
+
+var person = new PersonSchema({
+    name: 'Patrice',
+    country: 'France',
+    city: 'Paris'
+});
+person.save();
+```
+
+This user will have the `inhabitant_number` counter set to 1 and person will have the `inhabitant_number` counter set to 1 .
+
+Important Note: For the shared counter to work as inteneded, reference field property must be same and have type in all the models.
+
 ### Reset a counter
 
 It's possible to programmatically reset a counter through the Model's static method `counterReset(id, reference, callback)`. The method takes these parameters:
