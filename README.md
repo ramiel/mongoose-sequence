@@ -36,12 +36,24 @@ This plugin needs mongoose version 4.0.0 or above.
 
 ## Requiring
 
+You must pass your DB connection instance for this plugin to work. This is needed in order to create
+a collection on your DB where to store increment references.
+
 ```js
 const mongoose = require('mongoose')
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 ```
 
-**Note** You must pass your mongoose instance to the plugin for it to work.
+If you use different connections you must include it this way
+
+```js
+const mongoose = require('mongoose')
+const AutoIncrementFactory = require('mongoose-sequence');
+
+const connection = await mongoose.createConnection('mongodb://...');
+
+const AutoIncrement = AutoIncrementFactory(connection);
+```
 
 ## Global sequences
 
