@@ -1,50 +1,56 @@
-# 5.0.0
- - Fix scoped counter reset
+# Changelog
 
-# 4.0.0
+## 5.1.0
+  - Use connection instad of mongoose library
+  - Fix: updated dependencies
 
-- Fix: Do not hang on save in production anymore
-- Add `yarn.lock`
-- Add package-lock.json
+## 5.0.0
+  - Fix scoped counter reset
 
-# 3.2.1
+## 4.0.0
 
-- Adds donate button
+  - Fix: Do not hang on save in production anymore
+  - Add `yarn.lock`
+  - Add package-lock.json
 
-# 3.2.0
+## 3.2.1
 
-- Add a static method to reset a counter
+  - Adds donate button
 
-# 3.1.0
+## 3.2.0
 
- - Refactored code
- - Improved jsdoc 
- - Add tests for `insertMany` and `create`
+  - Add a static method to reset a counter
 
-# 3.0.2
+## 3.1.0
 
-- Updated readme
+  - Refactored code
+  - Improved jsdoc 
+  - Add tests for `insertMany` and `create`
+
+## 3.0.2
+
+  - Updated readme
     + added coverall badge
     + added installation instructions
     + some section have benn rewrote
-- Updated dependencies
+  - Updated dependencies
 
-# 3.0.1
+## 3.0.1
 
-- Fixed tests for Travis-CI environment
+  - Fixed tests for Travis-CI environment
 
-# 3.0.0
+## 3.0.0
 
-- Fixed bug which prevent more than one counter to work on a collection
-- When setNext is called the document is saved with the incremented field
-    + This breaks the precedent behavior but is more natural and behave like the save pre-hook
+  - Fixed bug which prevent more than one counter to work on a collection
+  - When setNext is called the document is saved with the incremented field
+  + This breaks the precedent behavior but is more natural and behave like the save pre-hook
 
-# 2.0.0
+## 2.0.0
 
-- Updated mongoose dependecy to version 4.0.0
-- Added coverage for tests
-- Added linting
+  - Updated mongoose dependecy to version 4.0.0
+  - Added coverage for tests
+  - Added linting
 
-# 1.0.0
+## 1.0.0
 
-- Working version
+  - Working version
