@@ -16,7 +16,7 @@ mongoose.Promise = global.Promise;
 const DB_URL = process.env.MONGODB_TEST_URL || 'mongodb://127.0.0.1/mongoose-sequence-testing';
 
 describe('Basic => ', () => {
-  before(() => {
+  beforeAll(() => {
     mongoose.set('useCreateIndex', true);
     mongoose.set('useFindAndModify', false);
   });
@@ -42,13 +42,13 @@ describe('Basic => ', () => {
 
 
   describe('Global sequences => ', () => {
-    before((done) => {
+    beforeAll((done) => {
       mongoose.connection.on('open', done);
       mongoose.connection.on('error', done);
       mongoose.connect(DB_URL, { useNewUrlParser: true });
     });
 
-    after((done) => {
+    afterAll((done) => {
       mongoose.connection.db.dropDatabase((err) => {
         if (err) return done(err);
         return mongoose.disconnect(done);
@@ -56,21 +56,23 @@ describe('Basic => ', () => {
     });
 
     describe('a simple id field => ', () => {
-      before(function () {
+      let SimpleField;
+      let MainId;
+      beforeAll(() => {
         const SimpleFieldSchema = new Schema({
           id: Number,
           val: String,
         });
         SimpleFieldSchema.plugin(AutoIncrement, { inc_field: 'id' });
-        this.SimpleField = mongoose.model('SimpleField', SimpleFieldSchema);
+        SimpleField = mongoose.model('SimpleField', SimpleFieldSchema);
 
         const MainIdSchema = new Schema({}, { _id: false });
         MainIdSchema.plugin(AutoIncrement);
-        this.MainId = mongoose.model('MainId', MainIdSchema);
+        MainId = mongoose.model('MainId', MainIdSchema);
       });
 
-      it('using the plugin models gain setNext methods', function () {
-        const t = new this.SimpleField();
+      it('using the plugin models gain setNext methods', () => {
+        const t = new SimpleField();
         assert.isFunction(t.setNext);
       });
 
@@ -95,7 +97,7 @@ describe('Basic => ', () => {
         }, 'Counter already defined for field "id"');
       });
 
-      it('creating different documents, the counter field is incremented', function (done) {
+      it('creating different documents, the counter field is incremented', (done) => {
         let count = 0;
         const documents = [];
 
@@ -104,7 +106,7 @@ describe('Basic => ', () => {
 
           (callback) => {
             count += 1;
-            const t = new this.SimpleField();
+            const t = new SimpleField();
             documents.push(t);
             t.save(callback);
           },
@@ -125,10 +127,10 @@ describe('Basic => ', () => {
         );
       });
 
-      it('creating different documents with .create, the counter field is incremented', function (done) {
+      it('creating different documents with .create, the counter field is incremented', (done) => {
         const documents = [{ val: 1 }, { val: 2 }];
 
-        this.SimpleField.create(documents, (err, inserted) => {
+        SimpleField.create(documents, (err, inserted) => {
           if (err) return done(err);
           const ids = inserted.map(d => d.id);
 
@@ -142,10 +144,10 @@ describe('Basic => ', () => {
         });
       });
 
-      xit('creating different documents with .insertMany, the counter field is incremented', function (done) {
+      it.skip('creating different documents with .insertMany, the counter field is incremented', (done) => {
         const documents = [{ val: 1 }, { val: 2 }];
 
-        this.SimpleField.insertMany(documents, (err, inserted) => {
+        SimpleField.insertMany(documents, (err, inserted) => {
           if (err) return done(err);
           const ids = inserted.map(d => d.id);
 
@@ -159,13 +161,13 @@ describe('Basic => ', () => {
         });
       });
 
-      it('handle concurrency (hard to test, just an approximation)', function (done) {
+      it('handle concurrency (hard to test, just an approximation)', (done) => {
         const documents = [];
         const createNew = function (callback) {
-          const t = new this.SimpleField();
+          const t = new SimpleField();
           documents.push(t);
           t.save(callback);
-        }.bind(this);
+        };
         async.parallel(
           [createNew, createNew],
           (err) => {
@@ -182,20 +184,20 @@ describe('Basic => ', () => {
         );
       });
 
-      it('can create multiple document in parallel when the sequence is on _id', function (done) {
+      it('can create multiple document in parallel when the sequence is on _id', (done) => {
         async.parallel(
           [
-            (callback) => { this.MainId.create({}, callback); },
-            (callback) => { this.MainId.create({}, callback); },
-            (callback) => { this.MainId.create({}, callback); },
+            (callback) => { MainId.create({}, callback); },
+            (callback) => { MainId.create({}, callback); },
+            (callback) => { MainId.create({}, callback); },
           ],
           done,
         );
       });
 
 
-      it('updating a document do not increment the counter', function (done) {
-        this.SimpleField.findOne({}, (err, entity) => {
+      it('updating a document do not increment the counter', (done) => {
+        SimpleField.findOne({}, (err, entity) => {
           const { id } = entity;
           entity.val = 'something'; // eslint-disable-line
           entity.save((e) => {
@@ -206,7 +208,7 @@ describe('Basic => ', () => {
         });
       });
 
-      it('increment _id if no field is specified', function (done) {
+      it('increment _id if no field is specified', (done) => {
         let count = 0;
         const documents = [];
 
@@ -215,7 +217,7 @@ describe('Basic => ', () => {
 
           (callback) => {
             count += 1;
-            const t = new this.MainId();
+            const t = new MainId();
             documents.push(t);
             t.save(callback);
           },
@@ -237,7 +239,9 @@ describe('Basic => ', () => {
       });
 
       describe('with a doulbe instantiation => ', () => {
-        before(function (done) {
+        let DoubleFields;
+
+        beforeAll((done) => {
           const DoubleFieldsSchema = new Schema({
             name: String,
             like: Number,
@@ -246,14 +250,14 @@ describe('Basic => ', () => {
           DoubleFieldsSchema.plugin(AutoIncrement, { id: 'like_counter', inc_field: 'like', disable_hooks: true });
           DoubleFieldsSchema.plugin(AutoIncrement, { id: 'score_counter', inc_field: 'score', disable_hooks: true });
 
-          this.DoubleFields = mongoose.model('DoubleFields', DoubleFieldsSchema);
+          DoubleFields = mongoose.model('DoubleFields', DoubleFieldsSchema);
 
-          const double = this.DoubleFields({ name: 'me' });
+          const double = DoubleFields({ name: 'me' });
           double.save(done);
         });
 
-        it('incrementes the correct counter', function (done) {
-          this.DoubleFields.findOne({ name: 'me' }, (err, double) => {
+        it('incrementes the correct counter', (done) => {
+          DoubleFields.findOne({ name: 'me' }, (err, double) => {
             if (err) {
               done(err);
               return;
@@ -270,7 +274,7 @@ describe('Basic => ', () => {
     });
 
     describe('a manual increment field => ', () => {
-      before(function (done) {
+      beforeAll(function (done) {
         const ManualSchema = new Schema({
           name: String,
           membercount: Number,
@@ -328,18 +332,20 @@ describe('Basic => ', () => {
     });
 
     describe('a counter which referes others fields => ', () => {
-      before(function () {
+      let Composed;
+
+      beforeAll(() => {
         const ComposedSchema = new Schema({
           country: Schema.Types.ObjectId,
           city: String,
           inhabitant: Number,
         });
         ComposedSchema.plugin(AutoIncrement, { id: 'inhabitant_counter', inc_field: 'inhabitant', reference_fields: ['city', 'country'] });
-        this.Composed = mongoose.model('Composed', ComposedSchema);
+        Composed = mongoose.model('Composed', ComposedSchema);
       });
 
-      it('increment on save', function (done) {
-        const t = new this.Composed({ country: mongoose.Types.ObjectId('59c380f51207391238e7f3f2'), city: 'Paris' });
+      it('increment on save', (done) => {
+        const t = new Composed({ country: mongoose.Types.ObjectId('59c380f51207391238e7f3f2'), city: 'Paris' });
         t.save((err) => {
           if (err) { done(err); return; }
           assert.deepEqual(t.inhabitant, 1);
@@ -347,8 +353,8 @@ describe('Basic => ', () => {
         });
       });
 
-      it('saving a document with the same reference increment the counter', function (done) {
-        const t = new this.Composed({ country: mongoose.Types.ObjectId('59c380f51207391238e7f3f2'), city: 'Paris' });
+      it('saving a document with the same reference increment the counter', (done) => {
+        const t = new Composed({ country: mongoose.Types.ObjectId('59c380f51207391238e7f3f2'), city: 'Paris' });
         t.save((err) => {
           if (err) { done(err); return; }
           assert.deepEqual(t.inhabitant, 2);
@@ -356,8 +362,8 @@ describe('Basic => ', () => {
         });
       });
 
-      it('saving with a different reference do not increment the counter', function (done) {
-        const t = new this.Composed({ country: mongoose.Types.ObjectId('59c380f51207391238e7f3f2'), city: 'Carcasonne' });
+      it('saving with a different reference do not increment the counter', (done) => {
+        const t = new Composed({ country: mongoose.Types.ObjectId('59c380f51207391238e7f3f2'), city: 'Carcasonne' });
         t.save((err) => {
           if (err) { done(err); return; }
           assert.deepEqual(t.inhabitant, 1);
@@ -381,7 +387,8 @@ describe('Basic => ', () => {
       });
 
       describe('A counter which referes to other fields with manual increment => ', () => {
-        before(function createSimpleSchemas() {
+        let ComposedManual;
+        beforeAll(() => {
           const ComposedManualSchema = new Schema({
             country: String,
             city: String,
@@ -390,11 +397,11 @@ describe('Basic => ', () => {
           ComposedManualSchema.plugin(AutoIncrement, {
             id: 'inhabitant_counter_manual', inc_field: 'inhabitant', reference_fields: ['country', 'city'], disable_hooks: true,
           });
-          this.ComposedManual = mongoose.model('ComposedManual', ComposedManualSchema);
+          ComposedManual = mongoose.model('ComposedManual', ComposedManualSchema);
         });
 
-        it('with a manual field do not increment on save', function (done) {
-          const t = new this.ComposedManual({ country: 'France', city: 'Paris' });
+        it('with a manual field do not increment on save', (done) => {
+          const t = new ComposedManual({ country: 'France', city: 'Paris' });
           t.save((err) => {
             if (err) { done(err); return; }
             assert.notEqual(t.inhabitant, 1);
@@ -402,8 +409,8 @@ describe('Basic => ', () => {
           });
         });
 
-        it('with a manual field increment manually', function (done) {
-          this.ComposedManual.findOne({}, (err, entity) => {
+        it('with a manual field increment manually', (done) => {
+          ComposedManual.findOne({}, (err, entity) => {
             entity.setNext('inhabitant_counter_manual', (e, entitySaved) => {
               if (e) { done(e); return; }
               assert.deepEqual(entitySaved.inhabitant, 1);
@@ -414,14 +421,17 @@ describe('Basic => ', () => {
       });
 
       describe('Two schema with the samere references', () => {
-        before(function createTwoSchemas() {
+        let RefFirst;
+        let RefSecond;
+
+        beforeAll(() => {
           const RefFirstSchema = new Schema({
             country: String,
             city: String,
             inhabitant: Number,
           });
           RefFirstSchema.plugin(AutoIncrement, { id: 'shared_inhabitant_counter', inc_field: 'inhabitant', reference_fields: ['country', 'city'] });
-          this.RefFirst = mongoose.model('RefFirst', RefFirstSchema);
+          RefFirst = mongoose.model('RefFirst', RefFirstSchema);
 
           const RefSecondSchema = new Schema({
             country: String,
@@ -429,12 +439,12 @@ describe('Basic => ', () => {
             inhabitant: Number,
           });
           RefSecondSchema.plugin(AutoIncrement, { id: 'shared_inhabitant_counter_2', inc_field: 'inhabitant', reference_fields: ['country', 'city'] });
-          this.RefSecond = mongoose.model('RefSecond', RefSecondSchema);
+          RefSecond = mongoose.model('RefSecond', RefSecondSchema);
         });
 
-        it('do not share the same counter', function (done) {
-          const t = new this.RefFirst({ country: 'France', city: 'Paris' });
-          const t2 = new this.RefSecond({ country: 'France', city: 'Paris' });
+        it('do not share the same counter', (done) => {
+          const t = new RefFirst({ country: 'France', city: 'Paris' });
+          const t2 = new RefSecond({ country: 'France', city: 'Paris' });
           t.save((err) => {
             if (err) { done(err); return; }
             assert.equal(t.inhabitant, 1);
@@ -449,13 +459,16 @@ describe('Basic => ', () => {
     });
 
     describe('Reset counter => ', () => {
-      before(function () {
+      let ResettableSimple;
+      let ResettableComposed;
+
+      beforeAll(() => {
         const ResettableSimpleSchema = new Schema({
           id: Number,
           val: String,
         });
         ResettableSimpleSchema.plugin(AutoIncrement, { id: 'resettable_simple_id', inc_field: 'id' });
-        this.ResettableSimple = mongoose.model('ResettableSimple', ResettableSimpleSchema);
+        ResettableSimple = mongoose.model('ResettableSimple', ResettableSimpleSchema);
 
         const ResettableComposedSchema = new Schema({
           country: String,
@@ -467,10 +480,10 @@ describe('Basic => ', () => {
           inc_field: 'inhabitant',
           reference_fields: ['country', 'city'],
         });
-        this.ResettableComposed = mongoose.model('ResettableComposed', ResettableComposedSchema);
+        ResettableComposed = mongoose.model('ResettableComposed', ResettableComposedSchema);
       });
 
-      beforeEach('create simple resettable documents', function (done) {
+      beforeEach((done) => {
         let count = 0;
         const documents = [];
 
@@ -479,7 +492,7 @@ describe('Basic => ', () => {
 
           (callback) => {
             count += 1;
-            const t = new this.ResettableSimple();
+            const t = new ResettableSimple();
             documents.push(t);
             t.save(callback);
           },
@@ -489,7 +502,7 @@ describe('Basic => ', () => {
         );
       });
 
-      beforeEach('create resettable reference document (a)', function (done) {
+      beforeEach((done) => {
         let count = 0;
         const documents = [];
 
@@ -498,7 +511,7 @@ describe('Basic => ', () => {
 
           (callback) => {
             count += 1;
-            const t = new this.ResettableComposed({ country: 'a', city: 'a' });
+            const t = new ResettableComposed({ country: 'a', city: 'a' });
             documents.push(t);
             t.save(callback);
           },
@@ -508,7 +521,7 @@ describe('Basic => ', () => {
         );
       });
 
-      beforeEach('create resettable reference document (b)', function (done) {
+      beforeEach((done) => {
         let count = 0;
         const documents = [];
 
@@ -517,7 +530,7 @@ describe('Basic => ', () => {
 
           (callback) => {
             count += 1;
-            const t = new this.ResettableComposed({ country: 'b', city: 'b' });
+            const t = new ResettableComposed({ country: 'b', city: 'b' });
             documents.push(t);
             t.save(callback);
           },
@@ -527,17 +540,17 @@ describe('Basic => ', () => {
         );
       });
 
-      it('a model gains a static "counterReset" method', function () {
-        assert.isFunction(this.ResettableSimple.counterReset);
+      it('a model gains a static "counterReset" method', () => {
+        assert.isFunction(ResettableSimple.counterReset);
       });
 
-      it('after calling it, the counter is 1', function (done) {
-        this.ResettableSimple.counterReset('resettable_simple_id', (err) => {
+      it('after calling it, the counter is 1', (done) => {
+        ResettableSimple.counterReset('resettable_simple_id', (err) => {
           if (err) {
             done(err);
             return;
           }
-          const t = new this.ResettableSimple();
+          const t = new ResettableSimple();
           t.save((e, saved) => {
             if (e) {
               done(e);
@@ -549,14 +562,14 @@ describe('Basic => ', () => {
         });
       });
 
-      it('for a referenced counter, the counter is 1 for any reference', function (done) {
-        this.ResettableComposed.counterReset('resettable_inhabitant_counter', (err) => {
+      it('for a referenced counter, the counter is 1 for any reference', (done) => {
+        ResettableComposed.counterReset('resettable_inhabitant_counter', (err) => {
           if (err) {
             done(err);
             return;
           }
-          const tA = new this.ResettableComposed({ country: 'a', city: 'a' });
-          const tB = new this.ResettableComposed({ country: 'b', city: 'b' });
+          const tA = new ResettableComposed({ country: 'a', city: 'a' });
+          const tB = new ResettableComposed({ country: 'b', city: 'b' });
           tA.save((e, tAsaved) => {
             if (e) {
               done(e);
@@ -575,8 +588,8 @@ describe('Basic => ', () => {
         });
       });
 
-      it('for a referenced counter with a specific value, the counter is 1 for that reference', function (done) {
-        this.ResettableComposed.counterReset(
+      it('for a referenced counter with a specific value, the counter is 1 for that reference', (done) => {
+        ResettableComposed.counterReset(
           'resettable_inhabitant_counter',
           { country: 'a', city: 'a' },
           (err) => {
@@ -584,8 +597,8 @@ describe('Basic => ', () => {
               done(err);
               return;
             }
-            const tA = new this.ResettableComposed({ country: 'a', city: 'a' });
-            const tB = new this.ResettableComposed({ country: 'b', city: 'b' });
+            const tA = new ResettableComposed({ country: 'a', city: 'a' });
+            const tB = new ResettableComposed({ country: 'b', city: 'b' });
             tA.save((e, tAsaved) => {
               if (e) {
                 done(e);
@@ -607,7 +620,9 @@ describe('Basic => ', () => {
     });
 
     describe('Error on hook', () => {
-      before(function (done) {
+      let SimpleField;
+
+      beforeAll(function (done) {
         const SimpleFieldSchema = new Schema({
           id: Number,
           val: String,
@@ -618,7 +633,7 @@ describe('Basic => ', () => {
           sinon.stub(sequence._counterModel, 'findOneAndUpdate').yields(new Error('Incrementing error'));
           return sequence;
         }, { id: 'simple_with_error_counter', inc_field: 'id' });
-        this.SimpleField = mongoose.model('SimpleFieldWithError', SimpleFieldSchema);
+        SimpleField = mongoose.model('SimpleFieldWithError', SimpleFieldSchema);
 
         const ManualSchema = new Schema({
           name: String,
@@ -633,8 +648,8 @@ describe('Basic => ', () => {
         this.Manual.create([{ name: 't1' }, { name: 't2' }], done);
       });
 
-      it('do not save the document if an error happens in the plugin', function (done) {
-        const t = new this.SimpleField();
+      it('do not save the document if an error happens in the plugin', (done) => {
+        const t = new SimpleField();
         t.save((err) => {
           assert.isOk(err);
           assert.instanceOf(err, Error);
