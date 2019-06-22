@@ -4,9 +4,9 @@
   "description": "Very generic autoincrement plugin for mongoose",
   "main": "index.js",
   "scripts": {
-    "test-only": "jest",
-    "test-watch": "npm run test-only -- --watch",
     "lint": "eslint .",
+    "test-only": "jest",
+    "test-watch": "jest --watch",
     "test": "npm run lint && npm run test-only -- --coverage"
   },
   "keywords": [
