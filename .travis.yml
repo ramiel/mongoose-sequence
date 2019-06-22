@@ -2,8 +2,8 @@ language: node_js
 node_js:
   - "node"
   - "lts/*"
+script:
+  - npm run test-ci
 services: 
   - mongodb
 sudo: false
-before_script:
-  - npm install -g grunt-cli
