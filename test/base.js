@@ -185,9 +185,9 @@ describe('Basic => ', () => {
       it('can create multiple document in parallel when the sequence is on _id', function (done) {
         async.parallel(
           [
-            function (callback) { this.MainId.create({}, callback); }.bind(this),
-            function (callback) { this.MainId.create({}, callback); }.bind(this),
-            function (callback) { this.MainId.create({}, callback); }.bind(this),
+            (callback) => { this.MainId.create({}, callback); },
+            (callback) => { this.MainId.create({}, callback); },
+            (callback) => { this.MainId.create({}, callback); },
           ],
           done,
         );
