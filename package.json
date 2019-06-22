@@ -44,17 +44,6 @@
     "mongoose": "^5.4.11",
     "sinon": "^1.17.5"
   },
-  "config": {
-    "blanket": {
-      "pattern": [
-        "lib"
-      ],
-      "data-cover-never": [
-        "node_modules",
-        "test"
-      ]
-    }
-  },
   "jest": {
     "testEnvironment": "node"
   }
