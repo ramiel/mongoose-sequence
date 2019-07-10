@@ -668,5 +668,41 @@ describe('Basic => ', () => {
         });
       });
     });
+
+    describe('Parallel/Sequential hook behavior => ', () => {
+      describe('hook is registered as parallel => ', () => {
+        it('does not pass updated increment value to next hook', (done) => {
+          const ParallelHooksSchema = new Schema({
+            parallel_id: Number,
+            val: String,
+          });
+
+          ParallelHooksSchema.plugin(AutoIncrement, { inc_field: 'parallel_id', parallel_hooks: true });
+          ParallelHooksSchema.pre('save', function (next) {
+            assert.isUndefined(this.parallel_id);
+            next();
+          });
+          const ParallelHooks = mongoose.model('ParallelHooks', ParallelHooksSchema);
+          ParallelHooks.create({ val: 't1' }, done);
+        });
+      });
+
+      describe('hook is registered as sequential => ', () => {
+        it('passes updated increment value to next hook', (done) => {
+          const SequentialHooksSchema = new Schema({
+            sequential_id: Number,
+            val: String,
+          });
+
+          SequentialHooksSchema.plugin(AutoIncrement, { inc_field: 'sequential_id', parallel_hooks: false });
+          SequentialHooksSchema.pre('save', function (next) {
+            assert.isDefined(this.sequential_id);
+            next();
+          });
+          const SequentialHooks = mongoose.model('SequentialHooks', SequentialHooksSchema);
+          SequentialHooks.create({ val: 't1' }, done);
+        });
+      });
+    });
   });
 });
