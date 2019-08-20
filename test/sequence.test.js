@@ -641,7 +641,7 @@ describe('Basic => ', () => {
         });
         ManualSchema.plugin((schema, options) => {
           const sequence = AutoIncrement(schema, options);
-          sinon.stub(sequence, '_setNextCounter').yields(new Error('Incrementing error'));
+          sinon.stub(sequence, '_createCounter').yields(new Error('Incrementing error'));
           return sequence;
         }, { id: 'errored_manual_counter', inc_field: 'membercount', disable_hooks: true });
         this.Manual = mongoose.model('ManualWithError', ManualSchema);
