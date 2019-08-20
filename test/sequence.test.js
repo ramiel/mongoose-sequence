@@ -76,7 +76,7 @@ describe('Basic => ', () => {
         assert.isFunction(t.setNext);
       });
 
-      it('is not possible to set an incremente field on a non Number field', () => {
+      it('is not possible to set an increment field on a non Number field', () => {
         const UnusedSchema = new Schema({
           id: Number,
           val: String,
@@ -238,7 +238,7 @@ describe('Basic => ', () => {
         );
       });
 
-      describe('with a doulbe instantiation => ', () => {
+      describe('with a double instantiation => ', () => {
         let DoubleFields;
 
         beforeAll((done) => {
