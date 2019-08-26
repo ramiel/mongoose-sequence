@@ -76,7 +76,7 @@ describe('Basic => ', () => {
         assert.isFunction(t.setNext);
       });
 
-      it('is not possible to set an incremente field on a non Number field', () => {
+      it('is not possible to set an increment field on a non Number field', () => {
         const UnusedSchema = new Schema({
           id: Number,
           val: String,
@@ -238,7 +238,7 @@ describe('Basic => ', () => {
         );
       });
 
-      describe('with a doulbe instantiation => ', () => {
+      describe('with a double instantiation => ', () => {
         let DoubleFields;
 
         beforeAll((done) => {
@@ -641,7 +641,7 @@ describe('Basic => ', () => {
         });
         ManualSchema.plugin((schema, options) => {
           const sequence = AutoIncrement(schema, options);
-          sinon.stub(sequence, '_setNextCounter').yields(new Error('Incrementing error'));
+          sinon.stub(sequence, '_createCounter').yields(new Error('Incrementing error'));
           return sequence;
         }, { id: 'errored_manual_counter', inc_field: 'membercount', disable_hooks: true });
         this.Manual = mongoose.model('ManualWithError', ManualSchema);
