@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.2.0
+  - Completely change code style
+    - Using jest for tests,
+    - Adding eslint
+    - Moving to more modern JS when possible
+  - Add support for sequential hooks.
+    The default behavior is to have them as parallel but an option can be set to increment the
+    counter sequentially while saving a document. Thanks to `@Artem Kobets`.
+  - Add custom start value and increment amount. Thanks to `@Pr0Sh00t3r`.
+
 ## 5.1.0
   - Use connection instad of mongoose library
   - Fix: updated dependencies
