@@ -460,6 +460,7 @@ describe('Basic => ', () => {
 
     describe('Reset counter => ', () => {
       let ResettableSimple;
+      let ResettableWithStartSeq;
       let ResettableComposed;
 
       beforeAll(() => {
@@ -469,6 +470,13 @@ describe('Basic => ', () => {
         });
         ResettableSimpleSchema.plugin(AutoIncrement, { id: 'resettable_simple_id', inc_field: 'id' });
         ResettableSimple = mongoose.model('ResettableSimple', ResettableSimpleSchema);
+
+        const ResettableWithStartSeqSchema = new Schema({
+          id: Number,
+          val: String,
+        });
+        ResettableWithStartSeqSchema.plugin(AutoIncrement, { id: 'resettable_startseq_id', inc_field: 'id', start_seq: 100 });
+        ResettableWithStartSeq = mongoose.model('ResettableWithStartSeq', ResettableWithStartSeqSchema);
 
         const ResettableComposedSchema = new Schema({
           country: String,
@@ -493,6 +501,25 @@ describe('Basic => ', () => {
           (callback) => {
             count += 1;
             const t = new ResettableSimple();
+            documents.push(t);
+            t.save(callback);
+          },
+
+          done,
+
+        );
+      });
+
+      beforeEach((done) => {
+        let count = 0;
+        const documents = [];
+
+        async.whilst(
+          () => count < 5,
+
+          (callback) => {
+            count += 1;
+            const t = new ResettableWithStartSeq();
             documents.push(t);
             t.save(callback);
           },
@@ -542,6 +569,7 @@ describe('Basic => ', () => {
 
       it('a model gains a static "counterReset" method', () => {
         assert.isFunction(ResettableSimple.counterReset);
+        assert.isFunction(ResettableWithStartSeq.counterReset);
       });
 
       it('after calling it, the counter is 1', (done) => {
@@ -557,6 +585,24 @@ describe('Basic => ', () => {
               return;
             }
             assert.deepEqual(saved.id, 1);
+            done();
+          });
+        });
+      });
+
+      it('after calling it, the counter is 100', (done) => {
+        ResettableWithStartSeq.counterReset('resettable_startseq_id', (err) => {
+          if (err) {
+            done(err);
+            return;
+          }
+          const t = new ResettableWithStartSeq();
+          t.save((e, saved) => {
+            if (e) {
+              done(e);
+              return;
+            }
+            assert.deepEqual(saved.id, 100);
             done();
           });
         });
