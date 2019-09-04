@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.2.1
+  - Fix counter reset. It now works even with a custom start value. Thanks to @leeqiang
+
 ## 5.2.0
   - Completely change code style
     - Using jest for tests,
