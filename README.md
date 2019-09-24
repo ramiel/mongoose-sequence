@@ -215,6 +215,23 @@ Model.counterReset('inhabitants_id',{country: 'France', city: 'Paris'}, function
 });
 ```
 
+### Nested fields
+
+It is possible to define a nested field as counter, using `.` as path separator:
+
+```js
+NestedSchema = new mongoose.Schema({
+    name: { type: String },
+    registration: {
+        date: { type: Date },
+        number: { type: Number }
+    }
+});
+
+NestedSchema.plugin(AutoIncrement, { id: 'user_registration_seq', inc_field: 'registration.number' });
+```
+
+
 ### Options
 
 This plugin accepts a series of options.
