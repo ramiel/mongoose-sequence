@@ -420,7 +420,7 @@ describe('Basic => ', () => {
         });
       });
 
-      describe('Two schema with the samere references', () => {
+      describe('Two schema with the same references', () => {
         let RefFirst;
         let RefSecond;
 
@@ -751,8 +751,8 @@ describe('Basic => ', () => {
       });
     });
 
-    describe('Increment nested fields', () => {
-      describe('Automatic increment on creation', () => {
+    describe('Increment nested fields =>', () => {
+      describe('Automatic increment on creation =>', () => {
         let NestedField;
 
         beforeAll(() => {
@@ -793,7 +793,7 @@ describe('Basic => ', () => {
         });
       });
 
-      describe('Manual increment', () => {
+      describe('Manual increment =>', () => {
         let NestedManual;
         beforeAll(() => {
           const NestedManualFieldSchema = new Schema({
