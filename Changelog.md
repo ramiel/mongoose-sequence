@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.2.2
+  - Allow nested fields as counters. Thanks @ManoelLobo
+
 ## 5.2.1
   - Fix counter reset. It now works even with a custom start value. Thanks to @leeqiang
 
