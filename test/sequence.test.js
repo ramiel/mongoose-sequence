@@ -420,7 +420,7 @@ describe('Basic => ', () => {
         });
       });
 
-      describe('Two schema with the samere references', () => {
+      describe('Two schema with the same references', () => {
         let RefFirst;
         let RefSecond;
 
@@ -747,6 +747,89 @@ describe('Basic => ', () => {
           });
           const SequentialHooks = mongoose.model('SequentialHooks', SequentialHooksSchema);
           SequentialHooks.create({ val: 't1' }, done);
+        });
+      });
+    });
+
+    describe('Increment nested fields =>', () => {
+      describe('Automatic increment on creation =>', () => {
+        let NestedField;
+
+        beforeAll(() => {
+          const NestedFieldSchema = new Schema({
+            parent: { nested: { type: Number } },
+          });
+          NestedFieldSchema.plugin(AutoIncrement, { inc_field: 'parent.nested' });
+          NestedField = mongoose.model('NestedField', NestedFieldSchema);
+        });
+
+        it('populates the nested fields with incremented values', (done) => {
+          let count = 0;
+          const documents = [];
+
+          async.whilst(
+            () => count < 5,
+
+            (callback) => {
+              count += 1;
+              const t = new NestedField();
+              documents.push(t);
+              t.save(callback);
+            },
+
+            (err) => {
+              if (err) return done(err);
+              const nestedValues = documents.map(d => d.parent.nested);
+
+              try {
+                assert.sameDeepMembers(nestedValues, [1, 2, 3, 4, 5]);
+              } catch (e) {
+                return done(e);
+              }
+
+              return done();
+            },
+          );
+        });
+      });
+
+      describe('Manual increment =>', () => {
+        let NestedManual;
+        beforeAll(() => {
+          const NestedManualFieldSchema = new Schema({
+            name: { type: String },
+            parent: { nested: { type: Number } },
+          });
+          NestedManualFieldSchema.plugin(AutoIncrement, {
+            id: 'nested_manual_seq',
+            inc_field: 'parent.nested',
+            disable_hooks: true,
+          });
+          NestedManual = mongoose.model('NestedManualField', NestedManualFieldSchema);
+          NestedManual.create([{ name: 't1' }, { name: 't2' }]);
+        });
+
+        it('is not incremented on save', (done) => {
+          const t = new NestedManual({});
+          t.save((err) => {
+            if (err) return done(err);
+            assert.notEqual(t.parent.nested, 1);
+            return done();
+          });
+        });
+
+        it('is incremented manually', (done) => {
+          NestedManual.findOne({ name: 't1' }, (err, entity) => {
+            if (err) {
+              done(err);
+              return;
+            }
+            entity.setNext('nested_manual_seq', (e, entityInstance) => {
+              if (e) return done(e);
+              assert.deepEqual(entityInstance.parent.nested, 1);
+              return done();
+            });
+          });
         });
       });
     });
