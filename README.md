@@ -96,7 +96,7 @@ In this case you don't have to specify `inc_field` because the default value is 
 
 ## Not automatic sequences 
 
-Let say our user model has a `rank` field which gives the rank of the user in a tournament. So it saves the arrival order of a user to the end of our amazing game. This field is of course a sequence but has to be incremented every time an event occurs. Because we have concurrent access to our database we want to be sure that the increment of this counter happens safely.
+Let's say our user model has a `rank` field which gives the rank of the user in a tournament. So it saves the arrival order of a user to the end of our amazing game. This field is of course a sequence but has to be incremented every time an event occurs. Because we have concurrent access to our database we want to be sure that the increment of this counter happens safely.
 Let's start by modifying our schema:
 
 ```js
@@ -107,7 +107,7 @@ UserSchema = mongoose.Schema({
 ```
 
 This time we specified explicitly the field `rank`. There is no difference between defining and omitting the field specification. The only constraint is that the field has to be of type `Number`, otherwise the plugin will raise an error.
-So, let's say to the plugin we want the `rank` field to be a safe counter:
+So, let's tell the plugin we want the `rank` field to be a safe counter:
 
 ```js
 UserSchema.plugin(AutoIncrement, {inc_field: 'rank', disable_hooks: true});
@@ -148,7 +148,7 @@ As we will see, the use of an id for the counter is mandatory when you're defini
 
 ### Scoped counters
 
-Let say our users are organized by `country` and `city` and we want to save the `inhabitant_number` according to these two pieces of information.  
+Let's say our users are organized by `country` and `city` and we want to save the `inhabitant_number` according to these two pieces of information.  
 The schema is like this:
 
 ```js
@@ -160,7 +160,7 @@ UserSchema = mongoose.Schema({
 });
 ```
 
-Every time a new Parisian is added the count of Parisians has to be incremented. The inhabitants of New York must not interfere and have their separate counting. We should define a __scoped__ counter which increments the counter depending on the value of other fields.
+Every time a new Parisian is added, the count of Parisians has to be incremented. The inhabitants of New York must not interfere, and have their separate counting. We should define a __scoped__ counter which increments the counter depending on the value of other fields.
 
 ```js
 UserSchema.plugin(AutoIncrement, {id: 'inhabitant_seq', inc_field: 'inhabitant_number', reference_fields: ['country','city'] });
@@ -217,7 +217,7 @@ Model.counterReset('inhabitants_id',{country: 'France', city: 'Paris'}, function
 
 ### Nested fields
 
-It is possible to define a nested field as counter, using `.` as path separator:
+It is possible to define a nested field as counter, using `.` as the path separator:
 
 ```js
 NestedSchema = new mongoose.Schema({
@@ -234,17 +234,17 @@ NestedSchema.plugin(AutoIncrement, { id: 'user_registration_seq', inc_field: 're
 
 ### Options
 
-This plugin accepts a series of options.
+This plugin accepts the following options:
 
-- **inc_field**: The name of the field to increment. Mandatory, default is `_id`
-- **id**: Id of the sequence. Is mandatory only for scoped sequences but its use is strongly encouraged.
+- **inc_field**: The name of the field to increment. Mandatory, default is `_id`.
+- **id**: Id of the sequence. Mandatory only for scoped sequences but its use is strongly encouraged.
 - **reference_fields**: The field to reference for a scoped counter. Optional.
 - **start_seq**: The number to start the sequence from. Optional, default `1`.
 - **inc_amount**: The quantity to increase the counter at each increment. Optional, default `1`.
-- **disable_hooks**: If true, the counter will not be incremented on saving a new document. Default to `false`
-- **collection_name**: By default the collection name to mantain the status of the counters is `counters`. You can override it using this option
-- **parallel_hooks**: If true, hooks will be registered as parallel.  Default to `true`
+- **disable_hooks**: If true, the counter will not be incremented on saving a new document. Default `false`.
+- **collection_name**: By default the collection name to mantain the status of the counters is `counters`. You can override it using this option.
+- **parallel_hooks**: If true, hooks will be registered as parallel.  Default `true`.
 
 ## Notes
 
-When using `insertMany` the plugin won't increment the counter because the needed hooks are not called. If you need to create several documents at once, use `create` instead and pass an array of documents (refer to [#7](https://github.com/ramiel/mongoose-sequence/issues/7))
+When using `insertMany` the plugin won't increment the counter because the needed hooks are not called. If you need to create several documents at once, use `create` instead and pass an array of documents (refer to [#7](https://github.com/ramiel/mongoose-sequence/issues/7)).
