@@ -79,7 +79,7 @@ after requiring the plugin.
 
 
 
-Every time a new user is created, the `id` field will have an incremented number. The operation is atomic and is based on [this](http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/) specification.
+Every time a new user is created, the `id` field will have an incremented number. The operation is atomic and is based on [this](https://docs.mongodb.com/v3.0/tutorial/create-an-auto-incrementing-field/) specification.
 A commodity collection named `counters` is created for you. You can override the name of this collection but we will see this later with the `options`.
 
 If you want to increment the `_id` field which is special to mongoose, you have to explicitly specify it as a Number and tell mongoose to not interfere:
