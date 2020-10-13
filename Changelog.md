@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.3.0
+  - Allow a counter to be shared setting `exclusive=false`
+
 ## 5.2.2
   - Allow nested fields as counters. Thanks @ManoelLobo
 
