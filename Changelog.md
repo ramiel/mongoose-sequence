@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.3.1
+  - Allow reference_field to be a non-root property. Thanks to @lucasmori1
+
 ## 5.3.0
   - Allow a counter to be shared setting `exclusive=false`
 
