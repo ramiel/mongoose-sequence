@@ -5,6 +5,9 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/FabrizioRuggeri)
 ![npm](https://img.shields.io/npm/v/mongoose-sequence)
 
+Hello everybody. Look, I have no more time to maintain this old library. If anybody wants to take over is very welcome and I'm available to review PRs. For the moment I have no time, no will to work on this library.
+
+
 This plugin lets you create fields which autoincrement their value:  
 - every time a new document is inserted in a collection  
 or
