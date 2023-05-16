@@ -31,3 +31,4 @@ build/Release
 node_modules
 /coverage/
 .vscode
+.idea
