@@ -135,8 +135,8 @@ this field? Your models have a new method: **setNext**. You must specify which s
 callback. Here's an example:
 
 ```js
-User.findOne({ name: 'George' }, function(err, user) {
-  user.setNext('rank', function(err, user) {
+User.findOne({ name: 'George' }, function (err, user) {
+  user.setNext('rank', function (err, user) {
     if (err) console.log('Cannot increment the rank because ', err);
   });
 });
@@ -156,7 +156,7 @@ UserSchema.plugin(AutoIncrement, {
 and then use:
 
 ```js
-user.setNext('rank_counter', function(err, user) {
+user.setNext('rank_counter', function (err, user) {
   //...
 });
 ```
@@ -220,7 +220,7 @@ to by the value of the fields `country` and `city`.
 If we want to increment this counter manually we have to specify the id of the sequence in the `setNext` method:
 
 ```js
-user.setNext('inhabitant_seq', function(err, user) {
+user.setNext('inhabitant_seq', function (err, user) {
   user.inhabitant_number; // the counter value
 });
 ```
@@ -242,18 +242,18 @@ method `counterReset(id, reference, callback)`. The method takes these parameter
 Some examples:
 
 ```js
-Model.counterReset('counter_id', function(err) {
+Model.counterReset("counter_id", function (err) {
   // Now the counter is 0
 });
 
-Model.counterReset('inhabitants_id', function(err) {
+Model.counterReset("inhabitants_id", function (err) {
   // If this is a referenced field, now all the counters are 0
 });
 
 Model.counterReset(
-  'inhabitants_id',
-  { country: 'France', city: 'Paris' },
-  function(err) {
+  "inhabitants_id",
+  { country: "France", city: "Paris" },
+  function (err) {
     // If this is a referenced field, only the counter for Paris/France is 0
   },
 );

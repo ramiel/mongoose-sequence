@@ -1,6 +1,7 @@
 # Changelog
 
 ## 6.0.0
+
 - Updated mongoose dependency to version 7.1.1
 - Dependency versions Bump to latest
 - Added prettier for code formatting
