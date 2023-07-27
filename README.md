@@ -242,17 +242,17 @@ method `counterReset(id, reference, callback)`. The method takes these parameter
 Some examples:
 
 ```js
-Model.counterReset("counter_id", function (err) {
+Model.counterReset('counter_id', function (err) {
   // Now the counter is 0
 });
 
-Model.counterReset("inhabitants_id", function (err) {
+Model.counterReset('inhabitants_id', function (err) {
   // If this is a referenced field, now all the counters are 0
 });
 
 Model.counterReset(
-  "inhabitants_id",
-  { country: "France", city: "Paris" },
+  'inhabitants_id',
+  { country: 'France', city: 'Paris' },
   function (err) {
     // If this is a referenced field, only the counter for Paris/France is 0
   },

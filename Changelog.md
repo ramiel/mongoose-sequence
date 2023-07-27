@@ -27,9 +27,9 @@
 ## 5.2.0
 
 - Completely change code style
-    - Using jest for tests,
-    - Adding eslint
-    - Moving to more modern JS when possible
+  - Using jest for tests,
+  - Adding eslint
+  - Moving to more modern JS when possible
 - Add support for sequential hooks.
   The default behavior is to have them as parallel but an option can be set to increment the
   counter sequentially while saving a document. Thanks to `@Artem Kobets`.
@@ -67,9 +67,9 @@
 ## 3.0.2
 
 - Updated readme
-    - added coverall badge
-    - added installation instructions
-    - some section have benn rewrote
+  - added coverall badge
+  - added installation instructions
+  - some section have benn rewrote
 - Updated dependencies
 
 ## 3.0.1
