@@ -44,7 +44,7 @@ describe('Basic =>', () => {
     beforeAll((done) => {
       mongoose.connection.on('open', done);
       mongoose.connection.on('error', done);
-      mongoose.connect(DB_URL, { useNewUrlParser: true });
+      mongoose.connect(DB_URL);
     });
 
     afterAll((done) => {
