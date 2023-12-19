@@ -1,21 +1,15 @@
 module.exports = {
-  root: true,
   env: {
     commonjs: true,
-    es6: true,
+    es2021: true,
     node: true,
   },
-  extends: 'airbnb-base',
-  globals: {
-    Atomics: 'readonly',
-    SharedArrayBuffer: 'readonly',
-  },
+  extends: 'eslint:recommended',
+  overrides: [],
   parserOptions: {
-    ecmaVersion: 2018,
+    ecmaVersion: 'latest',
   },
   rules: {
-    'no-underscore-dangle': 0,
-    'func-names': 0,
-    'no-plusplus': ["error", { "allowForLoopAfterthoughts": true }]
+    curly: 'error',
   },
 };
