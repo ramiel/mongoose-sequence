@@ -1,3 +1,6 @@
+/* eslint-disable jest/no-disabled-tests */
+/* eslint-disable jest/expect-expect */
+/* eslint-disable jest/no-done-callback */
 const chai = require('chai');
 
 const { assert } = chai;
@@ -13,7 +16,7 @@ const AutoIncrement = AutoIncrementFactory(mongoose);
 
 const DB_URL =
   process.env.MONGODB_TEST_URL ||
-  'mongodb://127.0.0.1/mongoose-sequence-testing';
+  'mongodb://127.0.0.1:27018/mongoose-sequence-testing';
 
 describe('Basic =>', () => {
   describe('General', () => {
@@ -21,7 +24,7 @@ describe('Basic =>', () => {
       assert.throw(AutoIncrementFactory, Error);
     });
 
-    it('can pass a generic connection', (done) => {
+    it('can pass a generic connection', () => {
       const connection = mongoose.createConnection(DB_URL);
       const AI = AutoIncrementFactory(connection);
       const ASchema = new Schema({
@@ -30,13 +33,7 @@ describe('Basic =>', () => {
       });
       ASchema.plugin(AI, { inc_field: 'id', id: 'aschemaid' });
       const AModel = connection.model('ASchema', ASchema);
-      AModel.create({ val: 'hello' })
-        .then(() => {
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
+      return AModel.create({ val: 'hello' });
     });
   });
 
@@ -1058,7 +1055,7 @@ describe('Basic =>', () => {
 
       describe('Manual increment =>', () => {
         let NestedManual;
-        beforeAll(() => {
+        beforeAll(async () => {
           const NestedManualFieldSchema = new Schema({
             name: { type: String },
             parent: { nested: { type: Number } },
@@ -1072,7 +1069,7 @@ describe('Basic =>', () => {
             'NestedManualField',
             NestedManualFieldSchema,
           );
-          NestedManual.create([{ name: 't1' }, { name: 't2' }]);
+          await NestedManual.create([{ name: 't1' }, { name: 't2' }]);
         });
 
         it('is not incremented on save', (done) => {
