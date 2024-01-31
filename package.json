@@ -1,6 +1,6 @@
 {
   "name": "mongoose-sequence",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "description": "Very generic autoincrement plugin for mongoose",
   "main": "index.js",
   "scripts": {
